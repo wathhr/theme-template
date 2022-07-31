@@ -1,0 +1,9 @@
+{
+"name": "a",
+"description": "A Discord theme",
+"author": "b",
+"version": "0.0.0",
+"theme": "dist/index.css",
+"license": "MIT",
+"consent": ["ext_listing"]
+}

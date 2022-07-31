@@ -1,0 +1,12 @@
+$vars: (
+  one: (
+    two: 'three',
+  ),
+  four: 'five',
+) !default;
+
+//* Output:
+//  :not(incompatible):root {
+//    --inc-#{string}: #{value};
+//    --inc-#{(sub)list}-#{string}: #{value};
+//  }

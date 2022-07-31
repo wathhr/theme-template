@@ -1,0 +1,4 @@
+:not(incompatible):root {
+  --inc-one-two: three;
+  --inc-four: five;
+}
