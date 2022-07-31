@@ -23,7 +23,7 @@ goto :end
 :start
 set /p themeName="Theme name: "
 set /p authorName="Author name: "
-set "files=(LICENSE manifest.json package.json)"
+set "files=(LICENSE manifest.json powercord_manifest.json package.json)"
 for %%x in %files% do (
   for /f "tokens=*" %%a in (%%x) do (
     set str=%%a

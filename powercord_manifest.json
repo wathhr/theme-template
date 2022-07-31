@@ -1,1 +1,11 @@
-manifest.json
+{
+  "name": "__themeName__",
+  "description": "A Discord theme",
+  "author": "__authorName__",
+  "version": "0.0.0",
+
+  "theme": "dist/index.css",
+
+  "license": "MIT",
+  "consent": ["ext_listing"]
+}

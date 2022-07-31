@@ -48,3 +48,5 @@ npm build [client] # For release
 ```sh
 npm update-classes
 ```
+
+<!-- i don't understand symlinks with git :sosad: -->

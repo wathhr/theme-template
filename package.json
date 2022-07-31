@@ -1,15 +1,15 @@
 {
-"name": "a",
-"author": "b",
-"version": "1.0.0",
-"description": "",
-"private": true,
-"main": "",
-"scripts": {
-"dev": "sass --watch index.scss:dist/index.css --no-source-map",
-"build": "sass index.scss:dist/index.css --no-source-map --style=compressed",
-"update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
-},
-"keywords": [],
-"license": "MIT"
+  "name": "__themeName__",
+  "author": "__authorName__",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "main": "",
+  "scripts": {
+    "dev": "sass --watch index.scss:dist/index.css --no-source-map",
+    "build": "sass index.scss:dist/index.css --no-source-map --style=compressed",
+    "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
+  },
+  "keywords": [],
+  "license": "MIT"
 }
