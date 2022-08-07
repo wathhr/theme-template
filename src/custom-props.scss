@@ -7,6 +7,6 @@ $vars: (
 
 //* Output:
 //  :not(incompatible):root {
-//    --inc-#{string}: #{value};
-//    --inc-#{(sub)list}-#{string}: #{value};
+//    --theme-#{string}: #{value};
+//    --theme-#{(sub)list}-#{string}: #{value};
 //  }

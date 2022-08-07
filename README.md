@@ -6,17 +6,20 @@ Basic Discord theme template
 - (More soon)
 
 ## Features (Users)
-- Fast loading (pre-compiled Sass)
-- One command customization (can be disabled[^precompile])
-
-[^precompile]: One command customization can be turned off (no command required), disabling fast loading
+- Fast loading (Sass pre-compilation)
+- One command customization
 
 ## Features (Developers)
 - Decent pre-made file structure
-- Useful Sass functions
+- [Useful Sass functions](./src/shared/functions/)
 - [CSS custom property map](./src/custom-props.scss)
-- Class updater
+- [Class updater](./scripts/update-classes.py)
 - (More soon (maybe))
+
+## Prerequisites
+- NodeJS (Sass compilation)
+- Git (Class updater)
+- Python (Class updater)
 
 ## Getting started
 ### Setup
@@ -26,7 +29,7 @@ Basic Discord theme template
    npm i
    ```
 
-2. - Run the provided [`setup.bat`](./setup.bat) script (breaks formatting) (WIP)
+2. - Run the provided [`setup.bat`](./setup.bat) script (Breaks formatting) (WIP)
    - Replace the metadata on the JSON and LICENSE files
 
 
@@ -39,9 +42,9 @@ npm build [client] # For release
 
 #### Hot reloading
 - PowerCord/Replugged/Vizality
-  - Built-in (might be slow)
+  - Built-in (Might be slow)
 - Others
-  - idk haven't used any client other than powercord and kernel in ages
+  - idk haven't used any client other than powerCord and kernel in ages
   - Use [BeautifulDiscord](https://github.com/leovoel/BeautifulDiscord)
 
 #### Updating classes

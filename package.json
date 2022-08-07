@@ -11,5 +11,8 @@
     "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
   },
   "keywords": [],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "sass": "^1.54.0"
+  }
 }

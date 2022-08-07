@@ -19,5 +19,5 @@
   }
 }
 :not(incompatible):root {
-  @include map-convert-css-vars($vars, 'inc');
+  @include map-convert-css-vars($vars, 'theme');
 }
