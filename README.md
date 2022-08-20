@@ -2,8 +2,10 @@
 Basic Discord theme template
 
 ## Client support
-- PowerCord/Replugged/Vizality
-- (More soon)
+- PowerCord/Replugged
+- Vizality
+- BetterDiscord
+- Stylus (Browser extension)
 
 ## Features (Users)
 - Fast loading (Sass pre-compilation)
@@ -11,9 +13,8 @@ Basic Discord theme template
 
 ## Features (Developers)
 - Decent pre-made file structure
-- [Useful Sass functions](./src/shared/functions/)
-- [CSS custom property map](./src/custom-props.scss)
 - [Class updater](./scripts/update-classes.py)
+- [Custom build script](./scripts/build/)
 - (More soon (maybe))
 
 ## Prerequisites
@@ -36,20 +37,15 @@ Basic Discord theme template
 ### Usage
 #### Building
 ```sh
-npm dev            # For hot reloading
-npm build [client] # For release
+npm dev       # For hot reloading
+npm build:all # For release
 ```
-
-#### Hot reloading
-- PowerCord/Replugged/Vizality
-  - Built-in (Might be slow)
-- Others
-  - idk haven't used any client other than powerCord and kernel in ages
-  - Use [BeautifulDiscord](https://github.com/leovoel/BeautifulDiscord)
 
 #### Updating classes
 ```sh
 npm update-classes
 ```
 
-<!-- i don't understand symlinks with git :sosad: -->
+### Hot reloading
+Clients such as PowerCord/Replugged and Vizality have hot reloading built in  
+If your client doesn't have hot reloading, use [BeautifulDiscord](https://github.com/leovoel/BeautifulDiscord)

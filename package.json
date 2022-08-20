@@ -7,7 +7,9 @@
   "main": "./scripts/build/index.js",
   "scripts": {
     "dev": "node scripts/build ./ -c all --watch",
-    "build": "node scripts/build ./ -c all",
+    "build:all": "node scripts/build ./ -c all",
+    "build:bd": "node scripts/build ./ -c betterdiscord",
+    "build:stylus": "node scripts/build ./ -c stylus",
     "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
   },
   "keywords": [],
