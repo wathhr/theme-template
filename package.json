@@ -1,18 +1,20 @@
 {
   "name": "__themeName__",
   "author": "__authorName__",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "",
   "private": true,
-  "main": "",
+  "main": "./scripts/build/index.js",
   "scripts": {
-    "dev": "sass --watch index.scss:dist/index.css --no-source-map",
-    "build": "sass index.scss:dist/index.css --no-source-map --style=compressed",
+    "dev": "node scripts/build ./ -c all --watch",
+    "build": "node scripts/build ./ -c all",
     "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
   },
   "keywords": [],
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
-    "sass": "^1.54.0"
+    "@ctrl/tinycolor": "^3.4.1",
+    "chokidar": "^3.5.3",
+    "sass": "^1.54.4"
   }
 }

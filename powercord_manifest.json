@@ -6,6 +6,6 @@
 
   "theme": "dist/index.css",
 
-  "license": "MIT",
+  "license": "GNU GPLv3",
   "consent": ["ext_listing"]
 }

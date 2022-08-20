@@ -1,0 +1,10 @@
+/* ==UserStyle==
+@name __themeName__
+@author __authorName__
+@version 0.0.0
+@license GNU GPLv3
+==/UserStyle== */
+
+@-moz-document domain('discord.com') {
+  @css;
+}

@@ -1,0 +1,51 @@
+{
+  "flags": [
+    {
+      "name": "client",
+      "short": "c",
+      "description": "Selects a client to build for.",
+      "switch": false,
+      "valid": [
+        "^all$",
+        "^bd$",
+        "^betterdiscord$",
+        "^stylus$"
+      ],
+      "default": ["all"]
+    },
+    {
+      "name": "compressed",
+      "short": "C",
+      "description": "Makes the output minified/compressed",
+      "switch": true,
+      "default": false
+    },
+    {
+      "name": "filePath",
+      "short": "p",
+      "description": "Specifies the path of a Sass file.",
+      "switch": false,
+      "valid": [".+(\\.s(a|c)ss|\/)"]
+    },
+    {
+      "name": "help",
+      "short": "h",
+      "description": "Shows this help message.",
+      "switch": true
+    },
+    {
+      "name": "output",
+      "short": "o",
+      "description": "Specifies the folder path of the output file.",
+      "switch": false,
+      "valid": ["^[^.]+$"],
+      "default": "dist"
+    },
+    {
+      "name": "watch",
+      "description": "Watches the specified path for changes.",
+      "switch": true,
+      "default": false
+    }
+  ]
+}
