@@ -5,6 +5,6 @@
 @license GNU GPLv3
 ==/UserStyle== */
 
-@-moz-document domain('discord.com') {
+@-moz-document regex('https?:\/\/((ptb|canary)\.)?discord\.com\/(app|activity|channels((\/\d+)+|\/@me(\/\d*)?)|store(\/skus.*)?|library(\/settings)?|guild-discovery)\/?') {
 :not(incompatible):root{--theme-one-two: three;--theme-four: five}.appMount-2yBXZl{color:hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%)}
 }

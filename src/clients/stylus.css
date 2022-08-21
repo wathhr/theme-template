@@ -5,6 +5,6 @@
 @license GNU GPLv3
 ==/UserStyle== */
 
-@-moz-document domain('discord.com') {
+@-moz-document regex('https?:\/\/((ptb|canary)\.)?discord\.com\/(app|activity|channels((\/\d+)+|\/@me(\/\d*)?)|store(\/skus.*)?|library(\/settings)?|guild-discovery)\/?') {
   @css;
 }
