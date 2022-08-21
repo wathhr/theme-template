@@ -27,7 +27,7 @@ def main():
   for path in sys.argv[1:]:
     paths.append(os.path.realpath(os.path.join(os.getcwd(), path)))
 
-  file_regex = r'.*\.(((s?|p?)(c|a)|le)ss|styl)' # lovely regex
+  file_regex = r'.*\.(([sp]?[ac]|le)ss|styl)' # lovely regex
   files = []
   for path in paths:
     if os.path.isdir(path):

@@ -3,9 +3,9 @@
   "description": "A Discord theme",
   "author": "__authorName__",
   "version": "0.0.0",
-
-  "theme": "dist/index.css",
-
+  "theme": "dist/__themeName__.css",
   "license": "GNU GPLv3",
-  "consent": ["ext_listing"]
+  "consent": [
+    "ext_listing"
+  ]
 }

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-// The flag parser for this is absolutely horrendous,
-// it works for this project but a rewrite would be nice
+//* The flag parser for this is absolutely horrendous,
+//* it works for this project but a rewrite would be nice
 
-// The watch system isn't perfect, it watches every style;
-// sometimes compiling the theme when it's not necessary,
-// can't do much to fix that, not worth it really
+//* The watch system isn't perfect, it watches every style;
+//* sometimes compiling the theme when it's not necessary,
+//* can't do much to fix that, not worth it really
 
 const fs = require('fs');
 const { join, relative} = require('path');
@@ -18,6 +18,8 @@ const { TinyColor } = require('@ctrl/tinycolor');
 const args = process.argv.slice(2);
 const flags = require('./flags.json').flags;
 const manifest = require(join(__dirname, '../../manifest.json'));
+const root = join(__dirname, '../..');
+
 let actions = [];
 
 let skipNext;
@@ -121,17 +123,16 @@ actions.forEach(action => {
         break;
       }
       if (action.arg == 'all') {
-        setFlags[action.name].push('betterdiscord', 'stylus');
+        setFlags[action.name].push('betterdiscord', 'stylus', 'all');
         break;
       }
       setFlags[action.name].push(action.arg);
       break;
 
     default:
-      setFlags[action.name] = action.arg ? action.arg : true;
+      setFlags[action.name] = action.arg || true;
       break;
   }
-
 
   return;
 });
@@ -142,6 +143,7 @@ const compile = (file) => {
     const compiled = sass.compile(file, {
       style: setFlags.compressed ? 'compressed' : 'expanded',
       functions: {
+        // TODO: error if invalid color
         'saturation-factor($col)': (args) => {
           const arg = args[0]
             .toString()
@@ -158,13 +160,13 @@ const compile = (file) => {
         {
           findFileUrl(url) {
             if (!url.startsWith('shared')) return null;
-            return new URL(url, pathToFileURL(join(__dirname, '../../src/shared')));
+            return new URL(url, pathToFileURL(join(root, 'src/shared')));
           }
         },
         {
           findFileUrl(url) {
             if (!url.startsWith('~')) return null;
-            return new URL(pathToFileURL(join(__dirname, '../../src', url.substring(1))));
+            return new URL(pathToFileURL(join(root, 'src', url.substring(1))));
           }
         },
       ]
@@ -172,7 +174,7 @@ const compile = (file) => {
 
     if (!fs.existsSync(setFlags.output)) fs.mkdirSync(setFlags.output, { recursive: true });
     setFlags.client.forEach(client => {
-      const clientFile = join(__dirname, '../../src/clients/', client) + '.css';
+      const clientFile = join(root, 'src/clients/', client) + '.css';
       fs.writeFileSync(
         // Output file name
         join(setFlags.output, manifest.name) +

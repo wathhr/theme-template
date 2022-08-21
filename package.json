@@ -7,9 +7,15 @@
   "main": "./scripts/build/index.js",
   "scripts": {
     "dev": "node scripts/build ./ -c all --watch",
-    "build:all": "node scripts/build ./ -c all",
-    "build:bd": "node scripts/build ./ -c betterdiscord",
-    "build:stylus": "node scripts/build ./ -c stylus",
+    "build": "node scripts/build ./ -c all -C",
+    "build:all": "node scripts/build ./ -c all -C",
+    "build:bd": "node scripts/build ./ -c betterdiscord -C",
+    "build:stylus": "node scripts/build ./ -c stylus -C",
+    "bump": "node scripts/bump patch",
+    "bump:major": "node scripts/bump major",
+    "bump:minor": "node scripts/bump minor",
+    "bump:patch": "node scripts/bump patch",
+    "bump:alpha": "node scripts/bump alpha",
     "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
   },
   "keywords": [],
@@ -17,6 +23,7 @@
   "dependencies": {
     "@ctrl/tinycolor": "^3.4.1",
     "chokidar": "^3.5.3",
+    "fast-glob": "^3.2.11",
     "sass": "^1.54.4"
   }
 }

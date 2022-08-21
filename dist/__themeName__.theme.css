@@ -1,0 +1,15 @@
+/**
+  * @name __themeName__
+  * @description A Discord theme
+  * @author __authorName__
+  * @version 0.0.0
+  */
+
+:not(incompatible):root {
+  --theme-one-two: three;
+  --theme-four: five;
+}
+
+a {
+  color: hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%);
+}
