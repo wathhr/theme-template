@@ -13,7 +13,7 @@ const { cwd } = require('process');
 const { pathToFileURL } = require('url');
 const sass = require('sass');
 const chokidar = require('chokidar');
-const { TinyColor } = require('@ctrl/tinycolor');
+const tinycolor = require('tinycolor2');
 
 const args = process.argv.slice(2);
 const flags = require('./flags.json').flags;
@@ -143,12 +143,14 @@ const compile = (file) => {
     const compiled = sass.compile(file, {
       style: setFlags.compressed ? 'compressed' : 'expanded',
       functions: {
-        // TODO: error if invalid color
         'saturation-factor($col)': (args) => {
           const arg = args[0]
             .toString()
             .replace('deg', ''); // remove the 'deg' sass adds on hsl because tinycolor is dumb
-          const col = new TinyColor(arg).toHslString();
+          if (!tinycolor(arg).isValid()) {
+            throw `Invalid input "${arg}", learn more at https://github.com/bgrins/TinyColor#accepted-string-input.`;
+          }
+          const col = tinycolor(arg).toHslString();
           const result = col
             .replace(/, /, ', calc(var(--saturation-factor, 1) * ')
             .replace(/%/, '%)');
