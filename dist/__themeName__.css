@@ -1,8 +1,1 @@
-:not(incompatible):root {
-  --theme-one-two: three;
-  --theme-four: five;
-}
-
-a {
-  color: hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%);
-}
+:not(incompatible):root{--theme-one-two: three;--theme-four: five}.appMount-2yBXZl{color:hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%)}

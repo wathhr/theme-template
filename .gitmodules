@@ -1,3 +1,6 @@
 [submodule "DiscordClassChanges"]
 	path = DiscordClassChanges
 	url = https://github.com/qwerasd205/DiscordClassChanges
+[submodule "src/shared/classes"]
+	path = src/shared/classes
+	url = https://github.com/wathhr/DiscordClasses
