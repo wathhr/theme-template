@@ -33,4 +33,4 @@ echo Finished. Err: %errorlevel%
 cd /D %initialDirectory%
 title %initialTitle%
 endlocal
-(goto) 2>nul & del "%~f0"
+exit /b %errorlevel%

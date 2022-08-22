@@ -16,9 +16,9 @@ metaFiles.forEach(file => {
   const actualFile = join(root, file);
   const fileData = fs.readFileSync(actualFile).toString();
   const newFileData = fileData
-    .replace('__authorName__', authorName)
-    .replace('__themeName__', themeName)
-    .replace('__themeDesc__', themeDesc);
+    .replace(/__authorName__/g, authorName)
+    .replace(/__themeName__/g, themeName)
+    .replace(/__themeDesc__/g, themeDesc);
   fs.writeFile(actualFile, newFileData, (err) => {
     if (err) {
       throw err;
