@@ -21,7 +21,7 @@ if not "%errorlevel%"=="0" goto :end
 goto :end
 
 :start
-if not exist node_modules npm i
+if not exist node_modules call npm i
 node .\scripts\setup\index.js
 goto :eof
 
