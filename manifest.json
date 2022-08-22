@@ -1,6 +1,6 @@
 {
   "name": "__themeName__",
-  "description": "A Discord theme",
+  "description": "__themeDesc__",
   "author": "__authorName__",
   "version": "0.0.0",
   "theme": "dist/__themeName__.css",

@@ -21,26 +21,7 @@ if not "%errorlevel%"=="0" goto :end
 goto :end
 
 :start
-set /p themeName="Theme name: "
-set /p authorName="Author name: "
-set "files=(LICENSE manifest.json powercord_manifest.json package.json)"
-for %%x in %files% do (
-  for /f "tokens=*" %%a in (%%x) do (
-    set str=%%a
-    set str=!str:__themeName__=%themeName%!
-    echo !str!>>%%x.tmp
-  )
-  del %%x
-  move %%x.tmp %%x >nul
-  for /f "tokens=*" %%a in (%%x) do (
-    set str=%%a
-    set str=!str:__authorName__=%authorName%!
-    echo !str!>>%%x.tmp
-  )
-  del %%x
-  move %%x.tmp %%x >nul
-  endlocal
-)
+node .\scripts\setup\index.js
 goto :eof
 
 :end
@@ -48,4 +29,4 @@ echo Finished. Err: %errorlevel%
 cd /D %initialDirectory%
 title %initialTitle%
 endlocal
-start /b "" cmd /c del "%~f0"&exit /b
+(goto) 2>nul & del "%~f0"

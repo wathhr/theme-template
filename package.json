@@ -2,7 +2,7 @@
   "name": "__themeName__",
   "author": "__authorName__",
   "version": "0.0.0",
-  "description": "",
+  "description": "__themeDesc__",
   "private": true,
   "main": "./scripts/build/index.js",
   "scripts": {
@@ -23,6 +23,7 @@
   "dependencies": {
     "chokidar": "^3.5.3",
     "fast-glob": "^3.2.11",
+    "readline-sync": "^1.4.10",
     "sass": "^1.54.4",
     "tinycolor2": "^1.4.2"
   }
