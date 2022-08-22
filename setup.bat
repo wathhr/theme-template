@@ -21,10 +21,7 @@ if not "%errorlevel%"=="0" goto :end
 goto :end
 
 :start
-if [%npm%]==[] where pnpm >nul 2>nul && set "npm=pnpm"
-if [%npm%]==[] where yarn >nul 2>nul && set "npm=yarn"
-if [%npm%]==[] where npm >nul 2>nul && set "npm=npm"
-if not exist node_modules %npm% i
+if not exist node_modules npm i
 node .\scripts\setup\index.js
 goto :eof
 
