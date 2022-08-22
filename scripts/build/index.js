@@ -8,7 +8,7 @@
 //* can't do much to fix that, not worth it really
 
 const fs = require('fs');
-const { join, relative} = require('path');
+const { join, relative } = require('path');
 const { cwd } = require('process');
 const { pathToFileURL } = require('url');
 const sass = require('sass');
@@ -17,8 +17,8 @@ const tinycolor = require('tinycolor2');
 
 const args = process.argv.slice(2);
 const flags = require('./flags.json').flags;
-const manifest = require(join(__dirname, '../../manifest.json'));
 const root = join(__dirname, '../..');
+const manifest = require(join(root, 'manifest.json'));
 
 let actions = [];
 

@@ -1,11 +1,16 @@
+#!/usr/bin/env node
+
+//* I kind of tried to make this compatible with
+//* SemVer (https://semver.org/) but not really
+
 const fs = require('fs');
 const { join } = require('path');
-const fg = require('fast-glob');
 
 const args = process.argv.slice(2);
+const { metaFiles } = require('../files.js');
 const root = join(__dirname, '../..');
 const bumpType = args[0].charAt(0).toUpperCase() + args[0].slice(1) || null;
-const bumpAmount = parseInt(args[1]) || `${parseInt(args[1]) === 0 ? 0 : 1}`; // lovely
+const bumpAmount = parseInt(args[1]) || 1;
 
 const validTypes = [
   'Major',
@@ -15,6 +20,7 @@ const validTypes = [
 ];
 if (!validTypes.includes(bumpType)) {
   // Wanted to make something with readline but wasn't able to figure it out.
+  // TODO: Use readline-sync
   console.log('Invalid argument. Must provide one of the following:');
   validTypes.forEach((type, i) => {
     console.log(`${i + 1}. ${type}`);
@@ -28,30 +34,22 @@ if (bumpAmount <= 0) {
   process.exit(1);
 }
 
-// all versions are based on the first file's version
-// must be a json file
-const files = fg.sync([
-  'package.json',
-  'manifest.json',
-  'powercord_manifest.json',
-  'src/clients/*',
-]);
-
 var version;
 var newVersion;
-files.forEach((file, i) => {
+metaFiles.forEach((file, i) => {
   const actualFile = join(root, file);
   const fileData = fs.readFileSync(actualFile).toString();
   var isJson;
-  try { // TODO: only use try for detection and not for the actual fucking logic
+  try {
     isJson = Boolean(JSON.parse(fileData));
   } catch(e) {
     isJson = false;
   }
   var newFileData;
   if (isJson) {
+    // TODO: Fix changing formatting
     const json = JSON.parse(fileData);
-    if (i === 0) {
+    if (isJson && !version) {
       const alphaRegex = /(?<=\.\d+-.*?[^\d])\d{3}$/mi;
       version = {
         'Major': parseInt(json.version.split('.')[0]),
@@ -63,9 +61,7 @@ files.forEach((file, i) => {
       version[bumpType] = version[bumpType] + bumpAmount;
       newVersion =
         `${version.Major}.${version.Minor}.${version.Patch}` +
-        `${version.Alpha && bumpType == 'Alpha' ? `-Alpha+${version.Alpha.toString().padStart(3, '0')}` : ''}`;
-
-      console.log(newVersion);
+        `${version.Alpha && bumpType == 'Alpha' ? `-Alpha.${version.Alpha.toString().padStart(3, '0')}` : ''}`;
     }
     newFileData = JSON.stringify(json, (key, value) => {
       if (key === 'version') {
@@ -80,11 +76,10 @@ files.forEach((file, i) => {
 
   newFileData = newFileData.replace('__versionNumber__', newVersion);
 
-  console.log(newFileData);
   fs.writeFile(actualFile, newFileData, (err) => {
     if (err) {
-      console.error(err);
-      return;
+      throw err;
     };
   });
 });
+console.log(`Bumped to version ${newVersion}!`);
