@@ -84,14 +84,10 @@ if (actions < 1) {
   process.exit(1);
 }
 
-var setFlags = {
-  // TODO: auto add these
-  'client': flags.find(v => v.name == 'client').default,
-  'compressed': flags.find(v => v.name == 'compressed').default,
-  'filePath': null,
-  'output': flags.find(v => v.name == 'output').default,
-  'watch': flags.find(v => v.name == 'watch').default,
-}
+var setFlags = {};
+flags.forEach(flag => {
+  setFlags[flag.name] = flag.default;
+});
 
 actions.forEach(action => {
   switch (action.name) {

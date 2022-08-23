@@ -1,0 +1,4 @@
+@use 'sass:map';
+@use './vars.scss' as *;
+
+$blue-color: map.get($vars, 'blue');

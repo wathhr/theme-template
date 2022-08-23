@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
-const { join } = require('path');
+const { cwd } = require('process');
+const { join, relative } = require('path');
 const { exec } = require('child_process');
 const readlineSync = require('readline-sync');
 
@@ -50,3 +51,7 @@ rmFiles.forEach(file => {
     }
   }
 });
+
+console.log('Done setting up the template!');
+console.log(`Take a look at ${relative(cwd(), join(root, './src/example'))} to see how this template works!`);
+console.log(`When you're done with that you can take a look at all of the pre-made scripts in ${relative(cwd(), join(root, './package.json'))},\naccessible by running "npm run [script name]".`)

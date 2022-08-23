@@ -18,21 +18,18 @@ Basic Discord theme template
 - (More soon (maybe))
 
 ## Prerequisites
-- NodeJS (Sass compilation)
-- Git (Class updater)
-- Python (Class updater)
+- Git
+- NodeJS
+- Python
 
 ## Getting started
 ### Setup
 1. ```sh
    git clone https://github.com/wathhr/theme-template [theme name] --recursive
    cd [theme name]
-   npm i
    ```
 
-2. - Run the provided [`setup.bat`](./setup.bat) script (Breaks formatting) (WIP)
-   - Replace the metadata on the JSON and LICENSE files
-
+2. Run the provided setup script for your platform
 
 ### Usage
 #### Building

@@ -1,5 +1,11 @@
+// This line gives you access to all functions, variables and mixins in src/shared.
+// It is recommended you add this to the top of every non-index file.
 @use 'shared' as *;
 
+// The class() function adds a class from a pre-made list (src/shared/classes/map.scss).
+// It is recommended you use this function for adding classes, if a class is not present,
+// you should submit an issue at https://github.com/wathhr/DiscordClasses/issues/new.
 #{class('main', 'appMount')} {
-  color: saturation-factor($var);
+  // The saturation-factor() function is always available to you.
+  color: saturation-factor($blue-color);
 }
