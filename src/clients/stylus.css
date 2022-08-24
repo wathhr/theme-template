@@ -1,11 +1,12 @@
 /* ==UserStyle==
 @name __themeName__
+@namespace https://github.com/__authorName__/__themeName__
 @description __themeDesc__
 @author __authorName__
 @version 0.0.0
 @license GNU GPLv3
 ==/UserStyle== */
 
-@-moz-document regex('https?:\/\/((ptb|canary)\.)?discord\.com\/(app|activity|channels((\/\d+)+|\/@me(\/\d*)?)|store(\/skus.*)?|library(\/settings)?|guild-discovery)\/?') {
+@-moz-document regexp('^https?:\/\/((ptb|canary)\.)?discord\.com\/(app|activity|channels((\/\d+)+|\/@me(\/\d*)?)|store(\/skus.*)?|library(\/settings)?|guild-discovery|login|oauth2\/authorize.*)\/?$') {
   @css;
 }
