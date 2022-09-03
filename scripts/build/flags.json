@@ -8,10 +8,10 @@
       "valid": [
         "^all$",
         "^bd$",
-        "^betterdiscord$",
+        "^betterDiscord$",
         "^stylus$"
       ],
-      "default": ["betterdiscord", "stylus", "all"]
+      "default": ["betterDiscord", "stylus", "all"]
     },
     {
       "name": "compressed",

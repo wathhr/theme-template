@@ -9,7 +9,7 @@
     "dev": "node scripts/build ./ -c all --watch",
     "build": "node scripts/build ./ -c all -C",
     "build:all": "node scripts/build ./ -c all -C",
-    "build:bd": "node scripts/build ./ -c betterdiscord -C",
+    "build:bd": "node scripts/build ./ -c betterDiscord -C",
     "build:stylus": "node scripts/build ./ -c stylus -C",
     "bump": "node scripts/bump patch",
     "bump:major": "node scripts/bump major",

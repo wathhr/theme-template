@@ -3,16 +3,13 @@
 //* The flag parser for this is absolutely horrendous,
 //* it works for this project but a rewrite would be nice
 
-//* The watch system isn't perfect, it watches every style;
-//* sometimes compiling the theme when it's not necessary,
-//* can't do much to fix that, not worth it really
-
 const fs = require('fs');
-const { join, relative } = require('path');
 const { cwd } = require('process');
+const { join, relative } = require('path');
 const { pathToFileURL } = require('url');
-const sass = require('sass');
 const chokidar = require('chokidar');
+const fg = require('fast-glob');
+const sass = require('sass');
 const tinycolor = require('tinycolor2');
 
 const args = process.argv.slice(2);
@@ -115,11 +112,11 @@ actions.forEach(action => {
     case 'client':
       setFlags[action.name].splice(0, setFlags[action.name].length);
       if (action.arg == 'bd') {
-        setFlags[action.name].push('betterdiscord');
+        setFlags[action.name].push('betterDiscord');
         break;
       }
       if (action.arg == 'all') {
-        setFlags[action.name].push('betterdiscord', 'stylus', 'all');
+        setFlags[action.name].push('betterDiscord', 'stylus', 'all');
         break;
       }
       setFlags[action.name].push(action.arg);
@@ -173,11 +170,15 @@ const compile = (file) => {
     if (!fs.existsSync(setFlags.output)) fs.mkdirSync(setFlags.output, { recursive: true });
     setFlags.client.forEach(client => {
       const clientFile = join(root, 'src/clients/', client) + '.css';
+      const clientSuffix = {
+        'betterDiscord': '.theme',
+        'stylus': '.user',
+      };
+
       fs.writeFileSync(
         // Output file name
         join(setFlags.output, manifest.name) +
-        `${client == 'betterdiscord' ? '.theme' : client == 'stylus' ? '.user' : ''}` +
-        '.css',
+        `${clientSuffix[client] || ''}.css`,
 
         `${fs.existsSync(clientFile) ?
           // Add client css
