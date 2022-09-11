@@ -1,11 +1,16 @@
 // This line gives you access to all functions, variables and mixins in src/shared.
 // It is recommended you add this to the top of every non-index file.
 @use 'shared' as *;
+// This line adds the local selector list, you can add selectors and use them with
+// the selector() function shown below.
+@use './selectors.scss' as *;
 
-// The class() function adds a class from a pre-made list (src/shared/classes/map.scss).
-// It is recommended you use this function for adding classes, if a class is not present,
-// you should submit an issue at https://github.com/wathhr/DiscordClasses/issues/new.
-#{class('main', 'appMount')} {
-  // The saturation-factor() function is always available to you.
+// The selector() function adds selectors from a selector list.
+// It is recommended you use this function for adding classes,
+// especially if the selectors are being used in multiple files.
+// The first and last arguments prepend and append content respectively;
+// the reason it is done like this is so you can use lists of selectors.
+#{selector(null, map-get($selectors, 'appMount'), null)} {
+  // The saturation-factor() function is always available.
   color: saturation-factor($blue-color);
 }
