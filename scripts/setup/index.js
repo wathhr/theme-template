@@ -28,7 +28,7 @@ metaFiles.forEach(file => {
   });
 });
 
-exec(`npm uninstall readline-sync`, { cwd: root }, (err) => {
+exec('npm uninstall readline-sync', { cwd: root }, (err) => {
   if (err) throw err;
   console.log('Removed readline-sync dependency successfully!');
 });

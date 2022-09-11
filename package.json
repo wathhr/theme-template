@@ -16,7 +16,8 @@
     "bump:minor": "node scripts/bump minor",
     "bump:patch": "node scripts/bump patch",
     "bump:alpha": "node scripts/bump alpha",
-    "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
+    "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/",
+    "update-template": "node scripts/update-template"
   },
   "keywords": [],
   "license": "GPL-3.0-or-later",
