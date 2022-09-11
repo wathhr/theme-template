@@ -1,0 +1,30 @@
+$colors: (
+  'primary': (
+    bg: var(--background-floating),
+    fg: var(--text-normal)
+  ),
+  'black': (
+    bg: hsl(0, calc(var(--saturation-factor, 1)*0%), 0%),
+    fg: hsl(0, calc(var(--saturation-factor, 1)*0%), 100%)
+  ),
+  'grey': (
+    bg: hsl(216, calc(var(--saturation-factor, 1)*7.2%), 13.5%),
+    fg: hsl(0, calc(var(--saturation-factor, 1)*0%), 100%)
+  ),
+  'brand': (
+    bg: var(--brand-experiment),
+    fg: hsl(0, calc(var(--saturation-factor, 1)*0%), 100%)
+  ),
+  'red': (
+    bg: var(--status-danger),
+    fg: hsl(0, calc(var(--saturation-factor, 1)*0%), 100%)
+  ),
+  'green': (
+    bg: hsl(139, calc(var(--saturation-factor, 1)*47.3%), 43.9%),
+    fg: hsl(0, calc(var(--saturation-factor, 1)*0%), 100%)
+  ),
+  'yellow': (
+    bg: var(--status-warning-background),
+    fg: var(--status-warning-text)
+  )
+);

@@ -1,0 +1,90 @@
+@use 'sass:list';
+@use 'sass:map';
+@use './tooltip-colors.scss' as *;
+
+@mixin pseudo-tooltip(
+  $content,
+  $direction: top,
+  $hover: false,
+  $color: primary,
+  $offset: 8px,
+  $pointer-offset: 0px,
+  $element: &,
+) {
+  $valid-directions: ('top', 'bottom', 'left', 'right');
+  @if not (list.index($valid-directions, $direction)) {
+    @error 'Invalid direction "#{$direction}". Valid directions: #{$valid-directions}';
+  }
+
+  $color: quote(#{$color}); // fixes if no quotes are provided
+  @if not (map.has-key($colors, $color)) {
+    @error 'Invalid color "#{$color}".';
+  }
+  $bg-color: map.get($colors, $color, bg);
+  $fg-color: map.get($colors, $color, fg);
+
+  $axis: if($direction == top or $direction == bottom, 'Y', 'X');
+  $neg: if($direction == bottom or $direction == right, true, false);
+  $opposite: if($axis == 'Y', if($neg, 'top', 'bottom'), if($neg, 'left', 'right'));
+
+  @at-root #{$element} {
+    position: relative;
+    overflow: visible;
+    @if ($hover) {
+      &:not(:hover) {
+        &::before, &::after {
+          display: none;
+        }
+      }
+    }
+    &::before, &::after {
+      position: absolute;
+      #{$opposite}: calc(100% + $offset);
+      transform: translate#{if($axis == 'Y', 'X', 'Y')}(-50%);
+      pointer-events: none;
+      z-index: 1002;
+      animation: tooltipPop-#{$direction} 125ms forwards;
+      transform-origin: if($axis == 'Y', 50% if($neg, 0, 100%), if($neg, 0, 100%) 50%);
+      @content;
+    }
+    &::before {
+      content: $content;
+      #{if($axis == 'Y', left, top)}: 50%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      max-width: 190px;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 16px;
+      overflow: hidden;
+      word-wrap: break-word;
+      will-change: opacity, transform;
+      border-radius: 5px;
+      color: $fg-color;
+      box-shadow: var(--elevation-high);
+      background-color: $bg-color;
+      @content(content);
+    }
+    &::after {
+      content: '';
+      #{if($axis == 'Y', left, top)}: calc(50% + $pointer-offset);
+      margin-#{$opposite}: -10px;
+      width: 0;
+      height: 0;
+      border: 5px solid transparent;
+      border-#{$direction}-color: $bg-color;
+      @content(pointer);
+    }
+  }
+
+  @keyframes tooltipPop-#{$direction} {
+    from {
+      opacity: 0;
+      transform: scale(0.875) translate#{if($axis == 'Y', 'X', 'Y')}(-50%);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translate#{if($axis == 'Y', 'X', 'Y')}(-50%);
+    }
+  }
+}
