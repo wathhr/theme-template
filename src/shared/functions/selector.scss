@@ -6,7 +6,6 @@
   $list,
   $append: null,
 ) {
-  @warn 'This is probably going to be deprecated soon in the favor of a big selector list, rather than a selector list for each folder.';
   $processedClasses: '';
 
   // If $list isn't a list, convert it into one
