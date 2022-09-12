@@ -34,13 +34,13 @@ Basic Discord theme template
 ### Usage
 #### Building
 ```sh
-npm dev       # For hot reloading
-npm build:all # For release
+npm run dev       # For hot reloading
+npm run build:all # For release
 ```
 
 #### Updating classes
 ```sh
-npm update-classes
+npm run update-classes
 ```
 
 ### Hot reloading

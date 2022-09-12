@@ -31,6 +31,11 @@
         $boosted: #{$boosted}#{$sel};
       }
       $sel: $boosted;
+    } @else if ($sel-type == '*') {
+      @for $i from 1 through $amount {
+        $boosted: #{$boosted}a#{if($i != $amount, ', ', '')};
+      }
+      $sel: #{':not('}#{$boosted}#{')'};
     } @else {
       @for $i from 1 through $amount {
         $boosted: #{$boosted}#{$sel}#{if($i != $amount, ', ', '')};

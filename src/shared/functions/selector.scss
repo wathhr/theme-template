@@ -1,5 +1,6 @@
 @use 'sass:list';
 @use 'sass:meta';
+@use 'sass:selector';
 
 @function selector(
   $prepend: null,
@@ -30,7 +31,7 @@
     }
   }
 
-  @return $processedClasses;
+  @return selector.parse($processedClasses);
 }
 
 @mixin selector(
