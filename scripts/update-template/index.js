@@ -24,7 +24,7 @@ const gitCommand = (args, verbose = false) => {
 };
 
 if (!gitCommand('remote').match('template')) {
-  gitCommand('remote add template https://github.com/wathhr/test2', true);
+  gitCommand('remote add template https://github.com/wathhr/theme-template', true);
 }
 gitCommand('stash', true);
 gitCommand('fetch --all', true);
