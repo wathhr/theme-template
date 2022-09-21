@@ -6,7 +6,7 @@ $vars: (
 ) !default;
 
 //* Output:
-//  :not(incompatible):root {
-//    --theme-#{string}: #{value};
-//    --theme-#{(sub)list}-#{string}: #{value};
+//  :not(__themeName__):root {
+//    --__shortName__-#{string}: #{value};
+//    --__shortName__-#{(sub)list}-#{string}: #{value};
 //  }

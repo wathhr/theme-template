@@ -2,7 +2,8 @@
   * @name __themeName__
   * @description __themeDesc__
   * @author __authorName__
+  * @source https://github.com/__authorName__/__themeDesc__
   * @version 0.0.0
   */
 
-:not(incompatible):root{--theme-one-two: three;--theme-four: five}.appMount-2yBXZl{color:hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%)}
+:not(__themeName__):root{--__shortName__-one-two: three;--__shortName__-four: five}.appMount-2yBXZl{color:hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%)}

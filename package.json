@@ -16,16 +16,17 @@
     "bump:minor": "node scripts/bump minor",
     "bump:patch": "node scripts/bump patch",
     "bump:alpha": "node scripts/bump alpha",
-    "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/",
-    "update-template": "node scripts/update-template"
+    "update-classes": "git submodule update --init --remote DiscordClassChanges && python3 scripts/update-classes.py src/"
   },
   "keywords": [],
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "chokidar": "^3.5.3",
     "fast-glob": "^3.2.11",
-    "readline-sync": "^1.4.10",
     "sass": "^1.54.4",
     "tinycolor2": "^1.4.2"
+  },
+  "devDependencies": {
+    "readline-sync": "^1.4.10"
   }
 }

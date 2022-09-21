@@ -7,10 +7,12 @@ exports.metaFiles = fg.sync([
   'manifest.json',
   'powercord_manifest.json',
   'src/clients/*',
+  'src/*custom-props.scss',
 ], { cwd: root });
 
 exports.rmFiles = fg.sync([
-  './scripts/setup',
-  './setup*',
-  'README.md'
+  'scripts/setup',
+  'setup*',
+  'README.md',
+  'dist/*.css',
 ], { cwd: root, onlyFiles: false });

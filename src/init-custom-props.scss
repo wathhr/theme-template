@@ -18,6 +18,6 @@
     $key: $key-copy;
   }
 }
-:not(incompatible):root {
-  @include map-convert-css-vars($vars, 'theme');
+:not(__themeName__):root {
+  @include map-convert-css-vars($vars, '__shortName__');
 }
