@@ -6,7 +6,7 @@ name: Update submodules
 on:
   # Runs workflow daily
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * 0'
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
