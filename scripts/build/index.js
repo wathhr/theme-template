@@ -149,9 +149,41 @@ const compile = (file) => {
             .replace(/%/, '%)');
           return sass.SassString(result, { quotes: false });
         },
+        // TODO: remove duplicate code
+        // TODO: maybe create a function for this?
+        'regex-match($string, $regex)': (args) => {
+          for (let i = 0; i < args.length; i++) {
+            args[i] = args[i].toString().replace(/['"]/g, '');
+          }
+          const string = args[0];
+          const flagRegex = /(?<=\/)[gmiyusd]*$/;
+          const expression = args[1]
+            .replace(flagRegex, '')
+            .slice(1)
+            .slice(0, -1);
+          const flags = args[1].match(flagRegex)[0];
+          const regex = new RegExp(expression, flags);
+          const match = string.match(regex);
+          return match ? sass.sassTrue : sass.sassFalse;
+        },
+        'regex-replace($string, $regex, $replace)': (args) => {
+          for (let i = 0; i < args.length; i++) {
+            args[i] = args[i].toString().replace(/['"]/g, '');
+          }
+          const flagRegex = /(?<=\/)[gmiyusd]*$/;
+          const string = args[0];
+          const expression = args[1]
+            .replace(flagRegex, '')
+            .slice(1)
+            .slice(0, -1);
+          const flags = args[1].match(flagRegex)[0];
+          const regex = new RegExp(expression, flags);
+          const replace = args[2];
+          const replaced = string.replace(regex, replace);
+          return sass.SassString(replaced, { quotes: false });
+        },
       },
       importers: [
-        // Aliases
         {
           findFileUrl(url) {
             if (!url.startsWith('shared')) return null;
