@@ -102,7 +102,6 @@ actions.forEach(action => {
           setFlags[action.name] = actualFile;
           indexFiles.length = 0;
         }
-        return;
       });
 
       // If no index file is found, use provided path
@@ -147,7 +146,7 @@ const compile = (file) => {
           const result = col
             .replace(/, /, ', calc(var(--saturation-factor, 1) * ')
             .replace(/%/, '%)');
-          return sass.SassString(result, { quotes: false });
+          return new sass.SassString(result, { quotes: false });
         },
         // TODO: remove duplicate code
         // TODO: maybe create a function for this?
@@ -164,7 +163,7 @@ const compile = (file) => {
           const flags = args[1].match(flagRegex)[0];
           const regex = new RegExp(expression, flags);
           const match = string.match(regex);
-          return match ? sass.sassTrue : sass.sassFalse;
+          return match ? new sass.sassTrue : new sass.sassFalse;
         },
         'regex-replace($string, $regex, $replace)': (args) => {
           for (let i = 0; i < args.length; i++) {
@@ -180,20 +179,20 @@ const compile = (file) => {
           const regex = new RegExp(expression, flags);
           const replace = args[2];
           const replaced = string.replace(regex, replace);
-          return sass.SassString(replaced, { quotes: false });
+          return new sass.SassString(replaced, { quotes: false });
         },
       },
       importers: [
         {
           findFileUrl(url) {
             if (!url.startsWith('shared')) return null;
-            return new URL(url, pathToFileURL(join(root, 'src/shared')));
+            return new URL(pathToFileURL(join(root, 'src/shared')));
           }
         },
         {
           findFileUrl(url) {
             if (!url.startsWith('~')) return null;
-            return new URL(pathToFileURL(join(root, 'src', url.substring(1))));
+            return new URL(pathToFileURL(join(root, 'src', url.slice(0, 1))));
           }
         },
       ]
