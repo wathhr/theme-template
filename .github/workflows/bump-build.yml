@@ -17,7 +17,7 @@ jobs:
 
       - name: Check and bump version
         run: |
-          if ! ([git log -1 --name-only | grep 'package.json']); then
+          if ! (git log -1 --name-only | grep -q 'package.json'); then
             npm i --production
             npm run bump:patch
           fi
@@ -26,7 +26,7 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          if (git status | grep 'up to date' >nul); then
+          if (git status | grep -q 'up to date'); then
             echo "Already bumped."
             exit 0
           else
