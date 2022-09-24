@@ -28,7 +28,7 @@ jobs:
           git config user.email github-actions@github.com
           git log -1 --name-only > /tmp/gitlog.txt
           if ! (grep -q 'package.json' /tmp/gitlog.txt && \
-                grep -q 'manifest.json' /tmp/gitlog.txt &&); then
+                grep -q 'manifest.json' /tmp/gitlog.txt); then
             echo "Already bumped."
             exit 0
           else
