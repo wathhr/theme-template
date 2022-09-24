@@ -2,11 +2,11 @@
 
 name: Update submodules
 
-# Controls when the action will run.
 on:
-  # Runs workflow daily
+  # Runs workflow weekly
   schedule:
     - cron: '0 0 * * 0'
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
       - name: Pull & update submodules recursively
@@ -31,7 +30,7 @@ jobs:
             echo "No submodules to update."
             exit 0
           else
-            git add .
+            git add *
             git commit -m "Update submodules"
             git push
           fi
