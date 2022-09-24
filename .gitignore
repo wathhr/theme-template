@@ -5,4 +5,10 @@ pnpm-lock.yaml
 yarn.lock
 
 # Private
-/**/todo*
+**/todo*
+
+# Unnecessary
+dist/*
+
+# Necessary
+!**/.gitkeep

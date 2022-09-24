@@ -1,0 +1,53 @@
+name: Bump version and build
+
+on:
+  # Runs workflow when source changed
+  push:
+    paths:
+      - 'src/**/*'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  Bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check and bump version
+        run: |
+          if ! ([git log -1 --name-only | grep 'package.json']); then
+            npm run bump:patch
+          fi
+
+      - name: Commit & push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          if (git status | grep 'up to date' >nul); then
+            echo "Already bumped."
+            exit 0
+          else
+            git add *
+            git commit -m "Bump version"
+            git push
+          fi
+
+  Build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          npm run build
+
+      - name: Commit & push changes
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add dist/*.css -f
+          git commit -m "Build"
+          git push
