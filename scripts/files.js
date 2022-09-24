@@ -3,9 +3,8 @@ const fg = require('fast-glob');
 const root = require('path').join(__dirname, '..');
 
 exports.metaFiles = fg.sync([
-  'package.json',
-  'manifest.json',
-  'powercord_manifest.json',
+  '*.json',
+  '.github/**/*',
   'src/clients/*',
   'src/*custom-props.scss',
 ], { cwd: root });
