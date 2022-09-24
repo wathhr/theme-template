@@ -17,7 +17,9 @@ jobs:
 
       - name: Check and bump version
         run: |
-          if ! (git log -1 --name-only | grep -q 'package.json'); then
+          git log -1 --name-only > /tmp/gitlog.txt
+          if ! (grep -q 'package.json' /tmp/gitlog.txt && \
+                grep -q 'manifest.json' /tmp/gitlog.txt); then
             npm i --production
             npm run bump:patch
           fi
@@ -26,7 +28,6 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git log -1 --name-only > /tmp/gitlog.txt
           if (grep -q 'package.json' /tmp/gitlog.txt && \
               grep -q 'manifest.json' /tmp/gitlog.txt); then
             git add *
