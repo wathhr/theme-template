@@ -5,8 +5,6 @@ on:
   push:
     paths:
       - 'src/**/*'
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 jobs:
   Bump:
@@ -17,26 +15,16 @@ jobs:
 
       - name: Check and bump version
         run: |
-          git log -1 --name-only > /tmp/gitlog.txt
-          if ! (grep -q 'package.json' /tmp/gitlog.txt && \
-                grep -q 'manifest.json' /tmp/gitlog.txt); then
-            npm i --production
-            npm run bump:patch
-          fi
+          npm i --production
+          npm run bump:patch
 
       - name: Commit & push changes
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          if (grep -q 'package.json' /tmp/gitlog.txt && \
-              grep -q 'manifest.json' /tmp/gitlog.txt); then
-            git add *
-            git commit -m "Bump version"
-            git push
-          else
-            echo "Already bumped."
-            exit 0
-          fi
+          git add *
+          git commit -m "Bump version"
+          git push
 
   Build:
     runs-on: ubuntu-latest
