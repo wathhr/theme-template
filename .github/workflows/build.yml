@@ -13,17 +13,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
       - name: Build
         run: |
-          npm i --production
-          npm run build:all
+          pnpm i --production
+          pnpm run build:all
 
       - name: Commit & push changes
         run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if (git status | grep -q 'up to date'); then
             echo "No changes made."
             exit 0
