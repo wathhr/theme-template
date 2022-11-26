@@ -13,8 +13,7 @@ Basic Discord theme template
 - One command customization
 
 ## Features (Developers)
-- [Class updater](./scripts/update-classes.py)
-- [Custom build script](./scripts/build/)
+- [Custom build script](./scripts/build/) (awesome)
 - (More soon (maybe))
 
 ## Prerequisites
