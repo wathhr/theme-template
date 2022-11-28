@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "description": "__themeDesc__",
   "private": true,
+  "type": "commonjs",
   "main": "./scripts/build/index.js",
   "scripts": {
     "dev": "node scripts/build ./ -c all --watch",
     "build": "node scripts/build ./ -c all -C",
     "build:all": "node scripts/build ./ -c all -C",
-    "build:bd": "node scripts/build ./ -c betterDiscord -C",
+    "build:bd": "node scripts/build ./ -c bd -C",
     "build:stylus": "node scripts/build ./ -c stylus -C",
     "bump": "node scripts/bump patch",
     "bump:major": "node scripts/bump major",
@@ -21,7 +22,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "chokidar": "^3.5.3",
-    "fast-glob": "^3.2.11",
+    "fast-glob": "^3.2.12",
     "sass": "^1.54.4",
     "tinycolor2": "^1.4.2"
   },

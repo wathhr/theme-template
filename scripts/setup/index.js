@@ -3,7 +3,7 @@
 const fs = require('fs');
 const { cwd } = require('process');
 const { join, relative } = require('path');
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 const readlineSync = require('readline-sync');
 
 const { metaFiles, rmFiles } = require('../files');
@@ -55,20 +55,19 @@ metaFiles.forEach(file => {
   const newFileData = fileData
     .replace(/__authorName__/g, authorName)
     .replace(/__themeName__/g, themeName)
-    .replace(/__shortName__/g, shortName())
+    .replace(/__shortName__/g, shortName)
     .replace(/__themeDesc__/g, themeDesc);
   fs.writeFile(actualFile, newFileData, (err) => {
-    if (err) {
-      throw err;
-    }
-    console.log(`Replaced metadata on ${actualFile} successfully!`);
+    if (err) console.error(err);
   });
 });
 
-exec('npm prune --production', { cwd: root }, (err) => {
-  if (err) throw err;
+try {
+  execSync('npm prune --production', { cwd: root })
   console.log('Removed unnecessary dependency successfully!');
-});
+} catch(e) {
+  console.error(e);
+}
 
 rmFiles.forEach(file => {
   const actualFile = join(root, file);
