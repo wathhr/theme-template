@@ -62,13 +62,6 @@ metaFiles.forEach(file => {
   });
 });
 
-try {
-  execSync('npm prune --production', { cwd: root })
-  console.log('Removed unnecessary dependency successfully!');
-} catch(e) {
-  console.error(e);
-}
-
 rmFiles.forEach(file => {
   const actualFile = join(root, file);
   if (fs.lstatSync(file).isDirectory()) {
@@ -87,5 +80,5 @@ rmFiles.forEach(file => {
 });
 
 console.log('Done setting up the template!');
-console.log(`Take a look at ${relative(cwd(), join(root, './src/example'))} to see how this template works!`);
-console.log(`When you're done with that you can take a look at all of the pre-made scripts in ${relative(cwd(), join(root, './package.json'))},\naccessible by running "npm run [script name]".`);
+console.log('You can now delete the "readline-sync" dependency by running "npm uninstall readline-sync"');
+console.log(`Make sure to take a look at the pre-made scripts in ${relative(cwd(), join(root, './package.json'))}, accessible by running "npm run [script name]".`);
