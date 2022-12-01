@@ -1,14 +1,11 @@
 #!/usr/bin/env node
 
-//* The flag parser for this is absolutely horrendous,
-//* it works for this project but a rewrite would be nice
-
 const fs = require('fs');
 const { cwd } = require('process');
 const { join, relative } = require('path');
 const { pathToFileURL } = require('url');
 const chokidar = require('chokidar');
-const fg = require('fast-glob');
+const postcss = require('postcss');
 const sass = require('sass');
 const tinycolor = require('tinycolor2');
 
@@ -28,53 +25,63 @@ args.forEach((arg, i) => {
 
   if (arg.startsWith('-')) {
     const type = arg.startsWith('--') ? 'long' : 'short';
-    const flag = type == 'long' ?
-      flags.find(v => v.name == arg.slice(2)) :
-      flags.find(v => v.short == arg.slice(1));
+    const flag =
+      type == 'long'
+        ? flags.find((v) => v.name == arg.slice(2))
+        : flags.find((v) => v.short == arg.slice(1));
     if (!flag) throw `Argument "${arg}" doesn't exist.`;
     const flagArg = flag.switch ? null : args[i + 1];
 
-    if (!flagArg && !flag.switch) throw `No argument provided on the "${arg}" flag.`
+    if (!flagArg && !flag.switch)
+      throw `No argument provided on the "${arg}" flag.`;
 
     if (flag.valid) {
       let match;
-      flag.valid.forEach(regex => {
+      flag.valid.forEach((regex) => {
         if (flagArg.match(regex)) {
           match = true;
           flag.valid.length = 0;
           return;
         }
       });
-      if (!match) throw `Argument ${flagArg} must match ${flag.valid}`;
+      if (!match)
+        throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`;
     }
 
     actions.push({
       name: flag.name,
-      arg: flagArg
+      arg: flagArg,
     });
     skipNext = Boolean(flagArg);
     return;
   } else if (i < 1) {
     actions.push({
       name: 'filePath',
-      arg: arg
+      arg: arg,
     });
 
     return;
   }
 });
+flags.forEach((flag) => {
+  if (flag.default)
+    actions.push({
+      name: flag.name,
+      arg: flag.default,
+    });
+});
 
 const printHelp = () => {
   console.log('Builds your Discord theme.\n');
-  console.log('Usage: node', relative(cwd(), __dirname), 'example/ -c all --watch');
-  flags.forEach(flag => {
+  console.log('Usage: node', relative(cwd(), __dirname), 'example/ -c all');
+  flags.forEach((flag) => {
     const short = flag.short ? `-${flag.short}` : '  ';
     const long = `--${flag.name.padEnd(10)}`; // TODO: automatically find best padding value
     const desc = flag.description;
     const string = `  ${short} ${long} | ${desc}`;
     console.log(string);
   });
-}
+};
 
 if (actions < 1) {
   printHelp();
@@ -82,11 +89,7 @@ if (actions < 1) {
 }
 
 var setFlags = {};
-flags.forEach(flag => {
-  setFlags[flag.name] = flag.default;
-});
-
-actions.forEach(action => {
+actions.forEach((action) => {
   switch (action.name) {
     case 'help':
       printHelp();
@@ -96,7 +99,7 @@ actions.forEach(action => {
     case 'filePath':
       // In case provided path is folder, find index file
       const indexFiles = ['./index.scss', './_index.scss'];
-      indexFiles.forEach(file => {
+      indexFiles.forEach((file) => {
         const actualFile = join(action.arg, file);
         if (fs.existsSync(actualFile)) {
           setFlags[action.name] = actualFile;
@@ -109,16 +112,36 @@ actions.forEach(action => {
       break;
 
     case 'client':
-      setFlags[action.name].splice(0, setFlags[action.name].length);
       if (action.arg == 'bd') {
-        setFlags[action.name].push('betterDiscord');
+        setFlags[action.name] = ['betterDiscord'];
         break;
       }
       if (action.arg == 'all') {
-        setFlags[action.name].push('betterDiscord', 'stylus', 'all');
+        setFlags[action.name] = ['betterDiscord', 'stylus', 'all'];
         break;
       }
-      setFlags[action.name].push(action.arg);
+      setFlags[action.name] = [action.arg];
+      break;
+
+    case 'plugins':
+      const plugins = setFlags[action.name] = [];
+      const pluginArray = JSON.parse(action.arg.replace(/'/g, '"'));
+
+      pluginArray.forEach((p) => {
+        const plugin = {
+          dir: p.replace(/([\w/-]+).*/, '$1'),
+          opts: p.replace(/[\w/-]+\((.*)\)/, '$1'),
+        };
+
+        const possibleDir = join(root, plugin.dir);
+        if (fs.existsSync(possibleDir)) {
+          plugins.push(require(possibleDir)(plugin.opts));
+        } else if (fs.existsSync(possibleDir + '.js')) {
+          plugins.push(require(possibleDir + '.js')(plugin.opts));
+        } else {
+          plugins.push(require(plugin.dir)(plugin.opts));
+        }
+      });
       break;
 
     default:
@@ -129,16 +152,21 @@ actions.forEach(action => {
   return;
 });
 
+const stringToRegex = (regexString) => {
+  const flagRegex = /(?<=\/)[gmiyusd]*$/;
+  const expression = regexString.replace(flagRegex, '').slice(1).slice(0, -1);
+  const flags = regexString.match(flagRegex)[0];
+  return new RegExp(expression, flags);
+};
+
 let compileError;
 const compile = (file) => {
   try {
     const compiled = sass.compile(file, {
-      style: setFlags.compressed ? 'compressed' : 'expanded',
+      style: 'expanded',
       functions: {
         'saturation-factor($col)': (args) => {
-          const arg = args[0]
-            .toString()
-            .replace('deg', ''); // remove the 'deg' sass adds on hsl because tinycolor is dumb
+          const arg = args[0].toString().replace('deg', ''); // remove the 'deg' sass adds on hsl because tinycolor is dumb
           if (!tinycolor(arg).isValid()) {
             throw `Invalid input "${arg}", learn more at https://github.com/bgrins/TinyColor#accepted-string-input.`;
           }
@@ -148,35 +176,19 @@ const compile = (file) => {
             .replace(/%/, '%)');
           return new sass.SassString(result, { quotes: false });
         },
-        // TODO: remove duplicate code
-        // TODO: maybe create a function for this?
+
+        //? Regex functions
         'regex-match($string, $regex)': (args) => {
-          for (let i = 0; i < args.length; i++) {
-            args[i] = args[i].toString().replace(/['"]/g, '');
-          }
+          args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
           const string = args[0];
-          const flagRegex = /(?<=\/)[gmiyusd]*$/;
-          const expression = args[1]
-            .replace(flagRegex, '')
-            .slice(1)
-            .slice(0, -1);
-          const flags = args[1].match(flagRegex)[0];
-          const regex = new RegExp(expression, flags);
+          const regex = stringToRegex(args[1]);
           const match = string.match(regex);
-          return match ? new sass.sassTrue : new sass.sassFalse;
+          return match ? sass.sassTrue : sass.sassFalse;
         },
         'regex-replace($string, $regex, $replace)': (args) => {
-          for (let i = 0; i < args.length; i++) {
-            args[i] = args[i].toString().replace(/['"]/g, '');
-          }
-          const flagRegex = /(?<=\/)[gmiyusd]*$/;
+          args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
           const string = args[0];
-          const expression = args[1]
-            .replace(flagRegex, '')
-            .slice(1)
-            .slice(0, -1);
-          const flags = args[1].match(flagRegex)[0];
-          const regex = new RegExp(expression, flags);
+          const regex = stringToRegex(args[1]);
           const replace = args[2];
           const replaced = string.replace(regex, replace);
           return new sass.SassString(replaced, { quotes: false });
@@ -187,43 +199,47 @@ const compile = (file) => {
           findFileUrl(url) {
             if (!url.startsWith('shared')) return null;
             return new URL(pathToFileURL(join(root, 'src/shared')));
-          }
+          },
         },
         {
           findFileUrl(url) {
             if (!url.startsWith('~')) return null;
             return new URL(pathToFileURL(join(root, 'src', url.slice(0, 1))));
-          }
+          },
         },
-      ]
+      ],
     });
 
-    if (!fs.existsSync(setFlags.output)) fs.mkdirSync(setFlags.output, { recursive: true });
-    setFlags.client.forEach(client => {
+    if (!fs.existsSync(setFlags.output))
+      fs.mkdirSync(setFlags.output, { recursive: true });
+    setFlags.client.forEach((client) => {
       const clientFile = join(root, 'src/clients/', client) + '.css';
       const clientSuffix = {
-        'betterDiscord': '.theme',
-        'stylus': '.user',
+        betterDiscord: '.theme',
+        stylus: '.user',
       };
 
-      fs.writeFileSync(
-        // Output file name
-        join(setFlags.output, manifest.name) +
-        `${clientSuffix[client] || ''}.css`,
+      // prettier-ignore
+      postcss(setFlags.plugins)
+        .process(compiled.css, { from: file, to: setFlags.output })
+        .then((result) => {
+          fs.writeFileSync(
+            join(setFlags.output, manifest.name) + `${clientSuffix[client] || ''}.css`,
 
-        `${fs.existsSync(clientFile) ?
-          // Add client css
-          fs.readFileSync(clientFile).toString().replace(/[^\S\r\n]*@css;?/gi, compiled.css) :
-          compiled.css
-        }`
-      );
+            // Add client css if exists
+            `${fs.existsSync(clientFile)
+              ? fs.readFileSync(clientFile).toString().replace(/[^\S\r\n]*@css;?/gi, result.css)
+              : result.css
+            }`
+          );
+        });
     });
     compileError = false;
-  } catch(e) {
+  } catch (e) {
     console.error(e);
     compileError = true;
   }
-}
+};
 
 if (!setFlags.watch) {
   compile(setFlags.filePath);
@@ -231,23 +247,35 @@ if (!setFlags.watch) {
     console.log('Compilation Succeeded!');
   }
 } else {
-  let i = 0;
+  let i = 3;
   const start = setInterval(() => {
-    process.stdout.write(`\rStarting Chokidar${'.'.repeat(i++)}`);
+    try {
+      process.stdout.write(`\rStarting Chokidar${'.'.repeat(i++)}`);
+    } catch(e) {}
   }, 350);
 
-  const watcher = chokidar.watch(join(setFlags.filePath, '../**/*.scss'), { persistent: true });
+  const watcher = chokidar.watch(join(setFlags.filePath, '../**/*.scss'), {
+    persistent: true,
+  });
 
   watcher
     .on('ready', () => {
       clearInterval(start);
       console.log('\n');
       compile(setFlags.filePath);
-      console.log(`[${new Date().toLocaleTimeString()}]`, `Compilation ${compileError ? 'Failed.' : 'Succeeded!'}`, setFlags.filePath);
+      console.log(
+        `[${new Date().toLocaleTimeString()}]`,
+        `Compilation ${compileError ? 'Failed.' : 'Succeeded!'}`,
+        setFlags.filePath
+      );
     })
     .on('change', (path) => {
       compile(setFlags.filePath);
-      console.log(`[${new Date().toLocaleTimeString()}]`, `Compilation ${compileError ? 'Failed.' : 'Succeeded!'}`, path);
+      console.log(
+        `[${new Date().toLocaleTimeString()}]`,
+        `Compilation ${compileError ? 'Failed.' : 'Succeeded!'}`,
+        path
+      );
     });
 
   process.on('SIGINT', () => {

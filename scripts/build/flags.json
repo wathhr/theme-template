@@ -3,22 +3,15 @@
     {
       "name": "client",
       "short": "c",
-      "description": "Selects a client to build for.",
+      "description": "Specifies a client to build for.",
       "switch": false,
       "valid": [
         "^all$",
         "^bd$",
-        "^betterDiscord$",
+        "^better[dD]iscord$",
         "^stylus$"
       ],
-      "default": ["betterDiscord", "stylus", "all"]
-    },
-    {
-      "name": "compressed",
-      "short": "C",
-      "description": "Makes the output minified/compressed",
-      "switch": true,
-      "default": false
+      "default": "all"
     },
     {
       "name": "filePath",
@@ -38,8 +31,16 @@
       "short": "o",
       "description": "Specifies the folder path of the output file.",
       "switch": false,
-      "valid": ["^[^.]+$"],
-      "default": "dist"
+      "valid": ["^[^/\\\\].+$"],
+      "default": "./dist"
+    },
+    {
+      "name": "plugins",
+      "short": "P",
+      "description": "Selects PostCSS plugins.",
+      "switch": false,
+      "valid": ["^\\[.+\\]$"],
+      "default": "[ 'postcss/generic-classes({keepOriginal: false})', 'cssnano' ]"
     },
     {
       "name": "watch",

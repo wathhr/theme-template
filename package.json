@@ -5,13 +5,12 @@
   "description": "__themeDesc__",
   "private": true,
   "type": "commonjs",
-  "main": "./scripts/build/index.js",
   "scripts": {
-    "dev": "node scripts/build ./ -c all --watch",
-    "build": "node scripts/build ./ -c all -C",
-    "build:all": "node scripts/build ./ -c all -C",
-    "build:bd": "node scripts/build ./ -c bd -C",
-    "build:stylus": "node scripts/build ./ -c stylus -C",
+    "dev": "node scripts/build ./ --client all --watch --plugins \"[ 'postcss/generic-classes({keepOriginal: true})' ]\"",
+    "build": "node scripts/build ./ --client all",
+    "build:all": "node scripts/build ./ --client all",
+    "build:bd": "node scripts/build ./ --client bd",
+    "build:stylus": "node scripts/build ./ --client stylus",
     "bump": "node scripts/bump patch",
     "bump:major": "node scripts/bump major",
     "bump:minor": "node scripts/bump minor",
@@ -22,11 +21,13 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "chokidar": "^3.5.3",
+    "cssnano": "^5.1.14",
     "fast-glob": "^3.2.12",
+    "postcss": "^8.4.19",
     "sass": "^1.54.4",
     "tinycolor2": "^1.4.2"
   },
-  "devDependencies": {
+  "optionalDependencies": {
     "readline-sync": "^1.4.10"
   }
 }
