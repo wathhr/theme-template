@@ -1,0 +1,8 @@
+.desaturate {
+  color: saturation-factor(hsl(0, 100%, 50%)); // hsl(0, calc(var(--saturation-factor, 1) * 100%), 50%)
+}
+
+.regex {
+  content: regex-match('555', '/\d/'); // true
+  content: "#{regex-replace('colour', '/ou/i', 'o')}"; // "color"
+}

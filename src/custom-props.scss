@@ -10,3 +10,28 @@ $vars: (
 //    --__shortName__-#{string}: #{value};
 //    --__shortName__-#{(sub)list}-#{string}: #{value};
 //  }
+
+
+
+@use 'sass:meta';
+
+// https://stackoverflow.com/a/72114019
+@mixin map-convert-css-vars(
+  $map,
+  $prefix,
+  $key: ''
+) {
+  @each $name, $value in $map {
+    $key-copy: $key;
+    $key: #{$key}-#{$name};
+    @if (meta.type-of($value) == 'map') {
+      @include map-convert-css-vars($value, $prefix, $key);
+    } @else {
+      --#{$prefix}#{$key}: #{$value};
+    }
+    $key: $key-copy;
+  }
+}
+:not(__themeName__):root {
+  @include map-convert-css-vars($vars, '__shortName__');
+}

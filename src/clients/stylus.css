@@ -8,6 +8,6 @@
 @license GNU GPLv3
 ==/UserStyle== */
 
-@-moz-document regexp('^https?:\/\/((ptb|canary)\.)?discord\.com\/(app|activity|channels((\/\d+)+|\/@me(\/\d*)?)|store(\/skus.*)?|library(\/settings)?|guild-discovery|login|oauth2\/authorize.*)\/?$') {
+@-moz-document regexp('^https?:\/\/(?:(?:ptb|canary)\.)?discord\.com\/(app|activity|channels((?:\/\d+)+|\/@me(\/\d*)?)|store(?:\/skus.*)?|library(?:\/settings)?|guild-discovery|login|oauth2\/authorize.*)\/?$') {
   @css;
 }
