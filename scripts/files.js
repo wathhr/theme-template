@@ -4,6 +4,7 @@ const root = require('path').join(__dirname, '..');
 
 exports.metaFiles = fg.sync([
   '*.json',
+  'README.md',
   '.github/**/*',
   'src/clients/*',
   'src/*custom-props.scss',
@@ -11,7 +12,6 @@ exports.metaFiles = fg.sync([
 
 exports.rmFiles = fg.sync([
   'scripts/setup',
-  'setup*',
-  'README.md',
+  '.github/README.md',
   'dist/*.css',
 ], { cwd: root, onlyFiles: false });
