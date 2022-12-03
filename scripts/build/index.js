@@ -16,13 +16,11 @@ const manifest = require(join(root, 'manifest.json'));
 
 let actions = [];
 flags.forEach((flag) => {
-  if (Object.hasOwn(flag, 'default')) {
-    console.log(flag.name, flag.default);
+  if (Object.hasOwn(flag, 'default'))
     actions.push({
       name: flag.name,
       arg: flag.default,
     });
-  }
 });
 
 let skipNext;
