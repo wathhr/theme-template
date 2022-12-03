@@ -7,11 +7,11 @@ exports.metaFiles = fg.sync([
   'README.md',
   '.github/**/*',
   'src/clients/*',
-  'src/*custom-props.scss',
+  'src/custom-props.scss',
 ], { cwd: root });
 
 exports.rmFiles = fg.sync([
   'scripts/setup',
   '.github/README.md',
-  'dist/*.css',
+  'dist/*',
 ], { cwd: root, onlyFiles: false });

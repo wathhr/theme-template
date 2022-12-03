@@ -15,6 +15,15 @@ const root = join(__dirname, '../..');
 const manifest = require(join(root, 'manifest.json'));
 
 let actions = [];
+flags.forEach((flag) => {
+  if (Object.hasOwn(flag, 'default')) {
+    console.log(flag.name, flag.default);
+    actions.push({
+      name: flag.name,
+      arg: flag.default,
+    });
+  }
+});
 
 let skipNext;
 args.forEach((arg, i) => {
@@ -50,7 +59,7 @@ args.forEach((arg, i) => {
 
     actions.push({
       name: flag.name,
-      arg: flagArg,
+      arg: flagArg ? flagArg : true,
     });
     skipNext = Boolean(flagArg);
     return;
@@ -62,13 +71,6 @@ args.forEach((arg, i) => {
 
     return;
   }
-});
-flags.forEach((flag) => {
-  if (flag.default)
-    actions.push({
-      name: flag.name,
-      arg: flag.default,
-    });
 });
 
 const printHelp = () => {
@@ -92,8 +94,10 @@ var setFlags = {};
 actions.forEach((action) => {
   switch (action.name) {
     case 'help':
-      printHelp();
-      process.exit(0);
+      if (action.arg) {
+        printHelp();
+        process.exit(0);
+      }
       break;
 
     case 'filePath':
@@ -145,7 +149,7 @@ actions.forEach((action) => {
       break;
 
     default:
-      setFlags[action.name] = action.arg || true;
+      setFlags[action.name] = Object.hasOwn(action, 'arg') ? action.arg : true;
       break;
   }
 
