@@ -39,8 +39,14 @@
       "short": "P",
       "description": "Selects PostCSS plugins.",
       "switch": false,
-      "valid": ["^\\[.+\\]$"],
+      "valid": ["^\\[.*\\]$"],
       "default": "[ 'postcss/generic-classes({keepOriginal: false})', 'cssnano' ]"
+    },
+    {
+      "name": "test",
+      "description": "Compiles the theme without saving.",
+      "switch": true,
+      "default": false
     },
     {
       "name": "watch",

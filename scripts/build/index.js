@@ -45,7 +45,7 @@ args.forEach((arg, i) => {
         }
       });
       if (!match)
-        throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`;
+        throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`, flag.valid;
     }
 
     actions.push({
@@ -223,15 +223,18 @@ const compile = (file) => {
       postcss(setFlags.plugins)
         .process(compiled.css, { from: file, to: setFlags.output })
         .then((result) => {
-          fs.writeFileSync(
-            join(setFlags.output, manifest.name) + `${clientSuffix[client] || ''}.css`,
+          if (!setFlags.test) {
+            const fileName =
+              join(setFlags.output, manifest.name) + `${clientSuffix[client] || ''}.css`
 
-            // Add client css if exists
-            `${fs.existsSync(clientFile)
-              ? fs.readFileSync(clientFile).toString().replace(/[^\S\r\n]*@css;?/gi, result.css)
-              : result.css
-            }`
-          );
+            const fileContent =
+              `${fs.existsSync(clientFile)
+                ? fs.readFileSync(clientFile).toString().replace(/[^\S\r\n]*@css;?/gi, result.css)
+                : result.css
+              }`;
+
+            fs.writeFileSync(fileName, fileContent);
+          }
         });
     });
     compileError = false;
