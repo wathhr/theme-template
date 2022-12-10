@@ -5,6 +5,8 @@ const { cwd } = require('process');
 const { join, relative } = require('path');
 const { pathToFileURL } = require('url');
 const chokidar = require('chokidar');
+const DatauriParser = require('datauri/parser');
+const parser = new DatauriParser();
 const postcss = require('postcss');
 const sass = require('sass');
 const tinycolor = require('tinycolor2');
@@ -14,13 +16,9 @@ const flags = require('./flags.json').flags;
 const root = join(__dirname, '../..');
 const manifest = require(join(root, 'manifest.json'));
 
-let actions = [];
+let actions = {};
 flags.forEach((flag) => {
-  if (Object.hasOwn(flag, 'default'))
-    actions.push({
-      name: flag.name,
-      arg: flag.default,
-    });
+  if (Object.hasOwn(flag, 'default')) actions[flag.name] = flag.default;
 });
 
 let skipNext;
@@ -33,9 +31,10 @@ args.forEach((arg, i) => {
   if (arg.startsWith('-')) {
     const type = arg.startsWith('--') ? 'long' : 'short';
     const flag =
-      type == 'long'
+      type === 'long'
         ? flags.find((v) => v.name == arg.slice(2))
         : flags.find((v) => v.short == arg.slice(1));
+
     if (!flag) throw `Argument "${arg}" doesn't exist.`;
     const flagArg = flag.switch ? null : args[i + 1];
 
@@ -43,31 +42,15 @@ args.forEach((arg, i) => {
       throw `No argument provided on the "${arg}" flag.`;
 
     if (flag.valid) {
-      let match;
-      flag.valid.forEach((regex) => {
-        if (flagArg.match(regex)) {
-          match = true;
-          flag.valid.length = 0;
-          return;
-        }
-      });
-      if (!match)
-        throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`, flag.valid;
+      const regex = new RegExp(flag.valid.join('|'));
+      if (!regex.test(flagArg))
+        throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`;
     }
 
-    actions.push({
-      name: flag.name,
-      arg: flagArg ? flagArg : true,
-    });
+    actions[flag.name] = flagArg ? flagArg : true;
     skipNext = Boolean(flagArg);
-    return;
   } else if (i < 1) {
-    actions.push({
-      name: 'filePath',
-      arg: arg,
-    });
-
-    return;
+    actions['filePath'] = arg;
   }
 });
 
@@ -89,7 +72,12 @@ if (actions < 1) {
 }
 
 var setFlags = {};
-actions.forEach((action) => {
+Object.keys(actions).forEach((action) => {
+  action = {
+    name: action,
+    arg: actions[action],
+  };
+
   switch (action.name) {
     case 'help':
       if (action.arg) {
@@ -126,13 +114,13 @@ actions.forEach((action) => {
       break;
 
     case 'plugins':
-      const plugins = setFlags[action.name] = [];
+      const plugins = (setFlags[action.name] = []);
       const pluginArray = JSON.parse(action.arg.replace(/'/g, '"'));
 
       pluginArray.forEach((p) => {
         const plugin = {
-          dir: p.replace(/([\w/-]+).*/, '$1'),
-          opts: p.replace(/[\w/-]+\((.*)\)/, '$1'),
+          dir: p.match(/([\w/.-]+).*/)[1],
+          opts: p.match(/[\w/.-]+\((.*)\)/)?.[1],
         };
 
         const possibleDir = join(root, plugin.dir);
@@ -150,8 +138,6 @@ actions.forEach((action) => {
       setFlags[action.name] = Object.hasOwn(action, 'arg') ? action.arg : true;
       break;
   }
-
-  return;
 });
 
 const stringToRegex = (regexString) => {
@@ -167,7 +153,7 @@ const compile = (file) => {
     const compiled = sass.compile(file, {
       style: 'expanded',
       functions: {
-        'saturation-factor($col)': (args) => {
+        'sf($col)': (args) => {
           const arg = args[0].toString().replace('deg', ''); // remove the 'deg' sass adds on hsl because tinycolor is dumb
           if (!tinycolor(arg).isValid()) {
             throw `Invalid input "${arg}", learn more at https://github.com/bgrins/TinyColor#accepted-string-input.`;
@@ -176,7 +162,21 @@ const compile = (file) => {
           const result = col
             .replace(/, /, ', calc(var(--saturation-factor, 1) * ')
             .replace(/%/, '%)');
-          return new sass.SassString(result, { quotes: false });
+          return sass.SassString(result, { quotes: false });
+        },
+        'sf-parse($col)': (args) => {
+          const arg = args[0].toString();
+          const result = arg.replace(
+            /(?<=,\s*)calc\(var\(--saturation-factor,\s*1\)\s*\*\s*(\d+%)\)/i,
+            '$1'
+          );
+          const nums = result.match(/[0-9.]+/g);
+          return sass.SassColor({
+            hue: nums[0],
+            saturation: nums[2],
+            lightness: nums[1],
+            alpha: nums?.[3],
+          });
         },
 
         //? Regex functions
@@ -193,7 +193,25 @@ const compile = (file) => {
           const regex = stringToRegex(args[1]);
           const replace = args[2];
           const replaced = string.replace(regex, replace);
-          return new sass.SassString(replaced, { quotes: false });
+          return sass.SassString(replaced);
+        },
+
+        //? Misc
+        'uri($input, $type: svg, $url: true)': (args) => {
+          args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
+          const path = join(root, 'src', args[0]);
+          const data = fs.existsSync(path) ? fs.readFileSync(path) : args[0];
+
+          const typeInput = args[1];
+          const isFile = typeof data === 'object';
+          // TODO: make this not override the typeInput if it's user set in a not dumb way
+          const type = isFile ? path.match(/(?<=\.)\w+$/)[0] : typeInput;
+
+          const meta = parser.format(type, data);
+          return sass.SassString(
+            args[2] === 'true' ? `url("${meta.content}")` : `"${meta.content}"`,
+            { quotes: false }
+          );
         },
       },
       importers: [
@@ -256,7 +274,7 @@ if (!setFlags.watch) {
   const start = setInterval(() => {
     try {
       process.stdout.write(`\rStarting Chokidar${'.'.repeat(i++)}`);
-    } catch(e) {}
+    } catch (e) {}
   }, 350);
 
   const watcher = chokidar.watch(join(setFlags.filePath, '../**/*.scss'), {

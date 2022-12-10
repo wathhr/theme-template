@@ -1,8 +1,14 @@
 .desaturate {
-  color: saturation-factor(hsl(0, 100%, 50%)); // hsl(0, calc(var(--saturation-factor, 1) * 100%), 50%)
+  color: sf(hsl(0, 100%, 50%)); // hsl(0, calc(var(--saturation-factor, 1) * 100%), 50%)
+  color: sf-parse(hsla(0, calc(var(--saturation-factor, 1) * 100%), 50%, 0.5)); // hsl(0, 100%, 50%)
 }
 
 .regex {
   content: regex-match('555', '/\d/'); // true
-  content: "#{regex-replace('colour', '/ou/i', 'o')}"; // "color"
+  content: "#{regex-replace('colour', '/ou/i', 'o')}"; // color
+}
+
+.icon {
+  // Sadly the path here is based off the src/ folder.
+  content: uri('<svg xmlns="http://www.w3.org/2000/svg"><ellipse rx="100" ry="100" color="red" /></svg>', 'svg'); // url(data:image/svg+xml;base64,...)
 }

@@ -9,5 +9,51 @@
 ==/UserStyle== */
 
 @-moz-document regexp('^https?:\/\/(?:(?:ptb|canary)\.)?discord\.com\/(app|activity|channels((?:\/\d+)+|\/@me(\/\d*)?)|store(?:\/skus.*)?|library(?:\/settings)?|guild-discovery|login|oauth2\/authorize.*)\/?$') {
-:not(__themeName__):root{--__shortName__-one-two:three;--__shortName__-four:five}.desaturate{color:hsl(0,calc(var(--saturation-factor, 1)*100%),50%)}.regex{content:true;content:"color"}[class*=generic]{color:red}.normal-2yBXZl{color:green}.once.once{color:blue}.twice.twice.twice{color:cyan}.platform-osx .container{color:#f0f}.platform-web [class*=wrapper]{color:#ff0}.platform-win[class*=wrapper]{color:#000}
+:not(__themeName__):root {
+  --__shortName__-one-two: three;
+  --__shortName__-four: five;
+}
+
+.desaturate {
+  color: hsl(0, calc(var(--saturation-factor, 1) * 100%), 50%);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.regex {
+  content: true;
+  content: "color";
+}
+
+.icon {
+  content: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxlbGxpcHNlIHJ4PSIxMDAiIHJ5PSIxMDAiIGNvbG9yPSJyZWQiIC8+PC9zdmc+");
+}
+
+.generic-2yBXZl {
+  color: red;
+}
+
+/* non-generic */
+.normal-2yBXZl {
+  color: green;
+}
+
+.once.once {
+  color: blue;
+}
+
+.twice.twice.twice {
+  color: cyan;
+}
+
+.platform-osx .container {
+  color: magenta;
+}
+
+.platform-web .wrapper-asdasda {
+  color: yellow;
+}
+
+.platform-win.wrapper-asdasda {
+  color: black;
+}
 }

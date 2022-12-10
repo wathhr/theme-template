@@ -23,6 +23,7 @@
   "dependencies": {
     "chokidar": "^3.5.3",
     "cssnano": "^5.1.14",
+    "datauri": "^4.1.0",
     "fast-glob": "^3.2.12",
     "postcss": "^8.4.19",
     "sass": "^1.54.4",

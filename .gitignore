@@ -7,8 +7,5 @@ yarn.lock
 # Private
 **/todo*
 
-# Unnecessary
-dist/*
-
 # Necessary
 !**/.gitkeep
