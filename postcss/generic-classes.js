@@ -1,8 +1,17 @@
-module.exports = (opts = { keepOriginal: false }) => {
+module.exports = (opts = { wordIgnores: [ 'platform' ] }) => {
   return {
     postcssPlugin: 'Generic Classes',
 
     Once(Root) {
+      const regexWordIgnore = Array.isArray(opts.wordIgnores)
+        ? opts.wordIgnores.join('|')
+        : opts.wordIgnores;
+
+      const regex = new RegExp(
+        // the only capture group should be the generic class
+        `\\.(\\w+(?<!${regexWordIgnore}))[-_](?:\\w{4,7}|(?=[\\s_-]|$))`
+      );
+
       for (let i = 0; i < Root.nodes.length; i++) {
         const node = Root.nodes[i];
         const previous = Root.nodes[i - 1];
@@ -10,16 +19,10 @@ module.exports = (opts = { keepOriginal: false }) => {
         if (node.type === 'rule' && !ignore) {
           const newSelector = node.selector
             .split(/\s*(?<!\\)[,>]\s*/gm)
-            .map((s) => s.replace(
-              /\.(\w+(?<!platform))[-_](?:\w{4,7}|(?=[\s_-]|$))/,
-              '[class*="$1"]'
-            ))
+            .map((s) => s.replace(regex, '[class*="$1"]'))
             .join(', ');
 
-          node.selector =
-            opts.keepOriginal && newSelector !== node.selector
-              ? node.selector + ', ' + newSelector
-              : newSelector;
+          node.selector = newSelector;
         }
       }
     },
