@@ -1,5 +1,5 @@
 {
-  "id": "__authorName__.__themeName__",
+  "id": "dev.__authorName__.__themeName__",
   "name": "__themeName__",
   "author": {
     "name": "__authorName__",
