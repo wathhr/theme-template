@@ -1,11 +1,17 @@
 {
+  "id": "__authorName__.__themeName__",
   "name": "__themeName__",
-  "description": "__themeDesc__",
-  "author": "__authorName__",
+  "author": {
+    "name": "__authorName__",
+    "github": "__authorName__"
+  },
   "version": "0.0.0",
-  "theme": "dist/__themeName__.css",
-  "license": "GNU GPLv3",
-  "consent": [
-    "ext_listing"
-  ]
+  "description": "__themeDesc__",
+  "type": "replugged-theme",
+  "updater": {
+    "type": "github",
+    "id": "__authorName__/__themeName__"
+  },
+  "license": "GPL-3.0-or-later",
+  "main": "dist/__themeName__.css"
 }
