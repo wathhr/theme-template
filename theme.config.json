@@ -1,0 +1,7 @@
+{
+  "assets": "./assets",
+  "aliases": {
+    "./src": [ "~", "src" ],
+    "./src/shared": [ "shared", "backend" ]
+  }
+}

@@ -37,7 +37,7 @@
 
 //? Converts the input into a data URI
 .icon {
-  // The path here is based off the assets/ folder.
+  // The path here is based off the "assets" key in the config.
   content: uri('example.svg'); // url(data:image/svg+xml;base64,...)
   content: uri(
     '<svg xmlns="http://www.w3.org/2000/svg"><ellipse rx="100" ry="100" color="red" /></svg>',

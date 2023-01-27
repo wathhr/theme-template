@@ -13,6 +13,7 @@ const tinycolor = require('tinycolor2');
 const args = process.argv.slice(2);
 const { flags } = require('./flags.json');
 const root = join(__dirname, '../..');
+const config = require(join(root, 'theme.config.json'));
 const manifest = require(join(root, 'manifest.json'));
 
 const help = (exitCode) => {
@@ -111,11 +112,6 @@ Object.keys(actions).forEach((action) => {
       break;
 
     case 'client':
-      // TODO: Add a way to create custom aliases
-      if (action.arg === 'bd') {
-        setFlags[action.name] = ['betterdiscord'];
-        break;
-      }
       if (action.arg === 'all') {
         const allClients = clientFiles.map((f) => f.replace(/\..*$/, ''));
 
@@ -217,7 +213,7 @@ const compile = (file) => {
         'uri($input, $type: svg, $url: true)': (args) => {
           args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
           // TODO: Get the file directory using errors somehow
-          const path = join(root, 'assets', args[0]);
+          const path = join(root, config.assets, args[0]);
           const data = fs.existsSync(path) ? fs.readFileSync(path) : args[0];
 
           const typeInput = args[1];
@@ -269,14 +265,20 @@ const compile = (file) => {
       importers: [
         {
           findFileUrl(url) {
-            if (!url.startsWith('shared')) return null;
-            return new URL(pathToFileURL(join(root, 'src/shared')));
-          },
-        },
-        {
-          findFileUrl(url) {
-            if (!url.startsWith('~')) return null;
-            return new URL(pathToFileURL(join(root, 'src', url.slice(0, 1))));
+            // TODO: Rewrite because yeah
+            const aliases = config.aliases;
+            let aliasedDir = '';
+
+            // prettier-ignore
+            if (!Object.keys(aliases).find((dir) => {
+              const result = aliases[dir].includes(
+                url.replace(/\/(?:[^/]+)?(?:\/$|$)/, '')
+              );
+              if (result) aliasedDir = dir;
+              return result
+            })) return null;
+            const structure = url.replace(new RegExp(`^${url}[\\\/]?`), '');
+            return new URL(pathToFileURL(join(root, aliasedDir, structure)));
           },
         },
       ],
