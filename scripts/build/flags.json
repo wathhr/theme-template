@@ -41,7 +41,7 @@
       "description": "Selects PostCSS plugins.",
       "switch": false,
       "valid": ["^\\[.*\\]$"],
-      "default": "[ 'postcss/generic-classes()', 'cssnano' ]"
+      "default": "['postcss/generic-classes', 'cssnano']"
     },
     {
       "name": "test",

@@ -5,22 +5,44 @@ const { cwd } = require('process');
 const { join, relative } = require('path');
 const { pathToFileURL } = require('url');
 const chokidar = require('chokidar');
-const DatauriParser = require('datauri/parser');
-const parser = new DatauriParser();
+const parser = new (require('datauri/parser'))();
 const postcss = require('postcss');
 const sass = require('sass');
 const tinycolor = require('tinycolor2');
 
 const args = process.argv.slice(2);
-const flags = require('./flags.json').flags;
+const { flags } = require('./flags.json');
 const root = join(__dirname, '../..');
 const manifest = require(join(root, 'manifest.json'));
 
+const help = (exitCode) => {
+  console.log('Builds your Discord theme.\n');
+  console.log('Usage: node', relative(cwd(), __dirname), 'example/ -c all');
+  let longestShort = 0;
+  let longestName = 0;
+  for (const flag in flags) {
+    const shortLength = flags[flag]?.short?.length;
+    if (shortLength > longestShort) longestShort = shortLength;
+
+    const nameLength = flags[flag]?.name?.length;
+    if (nameLength > longestName) longestName = nameLength;
+  }
+  flags.forEach((flag) => {
+    const short = (flag.short ? flag.short : ' ').padStart(longestShort);
+    const long = `--${flag.name.padEnd(longestName)}`;
+    const desc = flag.description;
+    const string = `  ${short} ${long} | ${desc}`;
+    console.log(string);
+  });
+  process.exit(exitCode);
+};
+
 let actions = {};
 flags.forEach((flag) => {
-  if (Object.hasOwn(flag, 'default')) actions[flag.name] = flag.default;
+  actions[flag.name] = Object.hasOwn(flag, 'default') ? flag.default : null;
 });
 
+if (args.length <= 0) help(1);
 let skipNext;
 args.forEach((arg, i) => {
   if (skipNext) {
@@ -28,50 +50,42 @@ args.forEach((arg, i) => {
     return;
   }
 
-  if (arg.startsWith('-')) {
-    const type = arg.startsWith('--') ? 'long' : 'short';
-    const flag =
-      type === 'long'
-        ? flags.find((v) => v.name == arg.slice(2))
-        : flags.find((v) => v.short == arg.slice(1));
-
-    if (!flag) throw `Argument "${arg}" doesn't exist.`;
-    const flagArg = flag.switch ? null : args[i + 1];
-
-    if (!flagArg && !flag.switch)
-      throw `No argument provided on the "${arg}" flag.`;
-
-    if (flag.valid) {
-      const regex = new RegExp(flag.valid.join('|'));
-      if (!regex.test(flagArg))
-        throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`;
-    }
-
-    actions[flag.name] = flagArg ? flagArg : true;
-    skipNext = Boolean(flagArg);
-  } else if (i < 1) {
-    actions['filePath'] = arg;
+  if (i < 1 && !arg.startsWith('-')) {
+    actions.filePath = arg;
+    return;
   }
+
+  const actualArg = arg.split('=')[0];
+  const isLong = actualArg.startsWith('--');
+  const flag = isLong
+    ? flags.find((v) => v.name == actualArg.slice(2))
+    : flags.find((v) => v.short == actualArg.slice(1));
+
+  if (!flag) throw `Argument "${actualArg}" doesn't exist.`;
+
+  const getFlagArg = () => {
+    const equalsArg = arg.split('=')[1];
+    const sameArg = Boolean(equalsArg);
+    skipNext = !sameArg;
+
+    return equalsArg || args[i + 1];
+  };
+  const flagArg = flag.switch ? null : getFlagArg();
+
+  if (!flagArg && !flag.switch)
+    throw `No argument provided on the "${actualArg}" flag.`;
+
+  if (flag.valid) {
+    const regex = new RegExp(flag.valid.join('|'));
+    if (!regex.test(flagArg))
+      throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`;
+  }
+
+  actions[flag.name] = flagArg ? flagArg : null;
 });
+if (actions.help) help(0);
 
-const printHelp = () => {
-  console.log('Builds your Discord theme.\n');
-  console.log('Usage: node', relative(cwd(), __dirname), 'example/ -c all');
-  flags.forEach((flag) => {
-    const short = flag.short ? `-${flag.short}` : '  ';
-    const long = `--${flag.name.padEnd(10)}`; // TODO: automatically find best padding value
-    const desc = flag.description;
-    const string = `  ${short} ${long} | ${desc}`;
-    console.log(string);
-  });
-};
-
-if (actions < 1) {
-  printHelp();
-  process.exit(1);
-}
-
-var setFlags = {};
+let setFlags = {};
 Object.keys(actions).forEach((action) => {
   action = {
     name: action,
@@ -79,13 +93,6 @@ Object.keys(actions).forEach((action) => {
   };
 
   switch (action.name) {
-    case 'help':
-      if (action.arg) {
-        printHelp();
-        process.exit(0);
-      }
-      break;
-
     case 'filePath':
       // In case provided path is folder, find index file
       const indexFiles = ['./index.scss', './_index.scss'];
@@ -102,12 +109,17 @@ Object.keys(actions).forEach((action) => {
       break;
 
     case 'client':
-      if (action.arg == 'bd') {
-        setFlags[action.name] = ['betterDiscord'];
+      // TODO: Add a way to create custom aliases
+      if (action.arg === 'bd') {
+        setFlags[action.name] = ['betterdiscord'];
         break;
       }
-      if (action.arg == 'all') {
-        setFlags[action.name] = ['betterDiscord', 'stylus', 'all'];
+      if (action.arg === 'all') {
+        const allClients = fs
+          .readdirSync(join(root, 'src/clients'))
+          .map((f) => f.replace(/\.(?:[^.\/]+)$/, ''));
+
+        setFlags[action.name] = ['none', ...allClients];
         break;
       }
       setFlags[action.name] = [action.arg];
@@ -124,18 +136,16 @@ Object.keys(actions).forEach((action) => {
         };
 
         const possibleDir = join(root, plugin.dir);
-        if (fs.existsSync(possibleDir)) {
+        if (fs.existsSync(possibleDir))
           plugins.push(require(possibleDir)(plugin.opts));
-        } else if (fs.existsSync(possibleDir + '.js')) {
+        else if (fs.existsSync(possibleDir + '.js'))
           plugins.push(require(possibleDir + '.js')(plugin.opts));
-        } else {
-          plugins.push(require(plugin.dir)(plugin.opts));
-        }
+        else plugins.push(require(plugin.dir)(plugin.opts));
       });
       break;
 
     default:
-      setFlags[action.name] = Object.hasOwn(action, 'arg') ? action.arg : true;
+      setFlags[action.name] = 'arg' in action ? action.arg : null;
       break;
   }
 });
@@ -153,8 +163,9 @@ const compile = (file) => {
     const compiled = sass.compile(file, {
       style: 'expanded',
       functions: {
+        //? Saturation factor functions
         'sf($col)': (args) => {
-          const arg = args[0].toString().replace('deg', ''); // remove the 'deg' sass adds on hsl because tinycolor is dumb
+          const arg = args[0].toString().replace('deg', ''); // Remove the 'deg' sass adds on hsl because tinycolor is dumb
           if (!tinycolor(arg).isValid()) {
             throw `Invalid input "${arg}", learn more at https://github.com/bgrins/TinyColor#accepted-string-input.`;
           }
@@ -204,7 +215,7 @@ const compile = (file) => {
 
           const typeInput = args[1];
           const isFile = typeof data === 'object';
-          // TODO: make this not override the typeInput if it's user set in a not dumb way
+          // TODO: make this not override the typeInput if its user set in a not dumb way
           const type = isFile ? path.match(/(?<=\.)\w+$/)[0] : typeInput;
 
           const meta = parser.format(type, data);
@@ -232,30 +243,36 @@ const compile = (file) => {
 
     if (!fs.existsSync(setFlags.output))
       fs.mkdirSync(setFlags.output, { recursive: true });
-    setFlags.client.forEach((client) => {
-      const clientFile = join(root, 'src/clients/', client) + '.css';
-      const clientSuffix = {
-        betterDiscord: '.theme',
-        stylus: '.user',
+    setFlags.client.forEach(async (client) => {
+      const regex = {
+        atSuffix: /[^\S\r\n]*@suffix\s+([\w\-. ]+);?\s*/i,
+        atCss: /[^\S\r\n]*@css;?/gi,
       };
 
-      // prettier-ignore
-      postcss(setFlags.plugins)
-        .process(compiled.css, { from: file, to: setFlags.output })
-        .then((result) => {
-          if (!setFlags.test) {
-            const fileName =
-              join(setFlags.output, manifest.name) + `${clientSuffix[client] || ''}.css`
+      const clientFile = join(root, 'src/clients/', client) + '.css';
+      const clientFileExists = fs.existsSync(clientFile);
+      const clientFileData = clientFileExists
+        ? fs.readFileSync(clientFile).toString()
+        : '';
+      const clientSuffix = clientFileData.match(regex.atSuffix)?.at(-1);
 
-            const fileContent =
-              `${fs.existsSync(clientFile)
-                ? fs.readFileSync(clientFile).toString().replace(/[^\S\r\n]*@css;?/gi, result.css)
-                : result.css
-              }`;
+      const postcssRes = await postcss(setFlags.plugins).process(compiled.css, {
+        from: file,
+        to: setFlags.output,
+      });
 
-            fs.writeFileSync(fileName, fileContent);
-          }
-        });
+      if (!setFlags.test) {
+        const fileName =
+          join(setFlags.output, manifest.name) + `${clientSuffix || ''}.css`;
+
+        const fileContent = clientFileExists
+          ? clientFileData
+              .replace(regex.atSuffix, '') // Remove the @suffix used above
+              .replace(regex.atCss, postcssRes.css) // Add the CSS wherever @css is used
+          : postcssRes.css;
+
+        fs.writeFileSync(fileName, fileContent);
+      }
     });
     compileError = false;
   } catch (e) {
@@ -266,9 +283,7 @@ const compile = (file) => {
 
 if (!setFlags.watch) {
   compile(setFlags.filePath);
-  if (!compileError) {
-    console.log('Compilation Succeeded!');
-  }
+  if (!compileError) console.log('Compilation Succeeded!');
 } else {
   let i = 3;
   const start = setInterval(() => {
@@ -302,9 +317,7 @@ if (!setFlags.watch) {
     });
 
   process.on('SIGINT', () => {
-    console.log(`\nStopping Chokidar${'.'.repeat(i - 1)}`);
-    watcher.close().then(() => {
-      process.exit();
-    });
+    console.log(`\nStopping Chokidar${'.'.repeat(i)}`);
+    watcher.close().then(() => process.exit());
   });
 }

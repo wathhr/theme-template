@@ -5,9 +5,17 @@ const { cwd } = require('process');
 const { join, relative } = require('path');
 const { execSync } = require('child_process');
 const readlineSync = require('readline-sync');
+const fg = require('fast-glob');
 
-const { metaFiles, rmFiles } = require('../files');
+const { metaFiles } = require('../files');
 const root = join(__dirname, '../..');
+const rmFiles = [
+  ...fg.sync(['dist/*'], {
+    cwd: root,
+    onlyFiles: false,
+  }),
+  ...['scripts/setup', '.github/README.md'],
+];
 
 const gitUrl = execSync('git remote get-url origin', { cwd: root })
   .toString()
