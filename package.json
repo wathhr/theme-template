@@ -6,8 +6,8 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "node scripts/build ./ --client all --test",
-    "dev": "node scripts/build ./ --client all --watch --plugins \"[ 'postcss/generic-classes({keepOriginal: true})' ]\"",
+    "test": "node scripts/build ./ --test",
+    "dev": "node scripts/build ./ --watch --plugins \"[ 'postcss/generic-classes({keepOriginal: true})' ]\"",
     "build": "node scripts/build ./",
     "build:all": "node scripts/build ./ --client all",
     "build:bd": "node scripts/build ./ --client bd",

@@ -81,9 +81,11 @@ args.forEach((arg, i) => {
       throw `Argument ${flagArg} must match /${flag.valid.join('/ or /')}/`;
   }
 
-  actions[flag.name] = flagArg ? flagArg : null;
+  actions[flag.name] = flagArg ? flagArg : true;
 });
 if (actions.help) help(0);
+
+const clientFiles = fs.readdirSync(join(root, 'src/clients'));
 
 let setFlags = {};
 Object.keys(actions).forEach((action) => {
@@ -115,9 +117,7 @@ Object.keys(actions).forEach((action) => {
         break;
       }
       if (action.arg === 'all') {
-        const allClients = fs
-          .readdirSync(join(root, 'src/clients'))
-          .map((f) => f.replace(/\.(?:[^.\/]+)$/, ''));
+        const allClients = clientFiles.map((f) => f.replace(/\..*$/, ''));
 
         setFlags[action.name] = ['none', ...allClients];
         break;
@@ -145,7 +145,7 @@ Object.keys(actions).forEach((action) => {
       break;
 
     default:
-      setFlags[action.name] = 'arg' in action ? action.arg : null;
+      setFlags[action.name] = 'arg' in action ? action.arg : true;
       break;
   }
 });
@@ -245,16 +245,14 @@ const compile = (file) => {
       fs.mkdirSync(setFlags.output, { recursive: true });
     setFlags.client.forEach(async (client) => {
       const regex = {
-        atSuffix: /[^\S\r\n]*@suffix\s+([\w\-. ]+);?\s*/i,
         atCss: /[^\S\r\n]*@css;?/gi,
+        suffix: /\.\w+(?=\.css)/i,
       };
 
-      const clientFile = join(root, 'src/clients/', client) + '.css';
-      const clientFileExists = fs.existsSync(clientFile);
-      const clientFileData = clientFileExists
-        ? fs.readFileSync(clientFile).toString()
-        : '';
-      const clientSuffix = clientFileData.match(regex.atSuffix)?.at(-1);
+      const clientFile =
+        clientFiles.find((f) => client === f.replace(/\..*$/, '')) || '';
+      const actualClientFile = join(root, 'src/clients', clientFile);
+      const clientSuffix = clientFile.match(regex.suffix)?.[0] || '';
 
       const postcssRes = await postcss(setFlags.plugins).process(compiled.css, {
         from: file,
@@ -263,11 +261,12 @@ const compile = (file) => {
 
       if (!setFlags.test) {
         const fileName =
-          join(setFlags.output, manifest.name) + `${clientSuffix || ''}.css`;
+          join(setFlags.output, manifest.name) + `${clientSuffix}.css`;
 
-        const fileContent = clientFileExists
-          ? clientFileData
-              .replace(regex.atSuffix, '') // Remove the @suffix used above
+        const fileContent = Boolean(clientFile)
+          ? fs
+              .readFileSync(actualClientFile)
+              .toString()
               .replace(regex.atCss, postcssRes.css) // Add the CSS wherever @css is used
           : postcssRes.css;
 
