@@ -1,8 +1,8 @@
-.generic-2yBXZl { // [class*="generic-"]
-  color: red;
+.generic-2yBXZl { // [class|="generic"]
+  margin: 0;
 }
 
 /* non-generic */
 .normal-2yBXZl { // .normal-2yBXZl
-  color: green;
+  padding: 0;
 }

@@ -6,7 +6,7 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "node scripts/build ./ --test",
+    "test": "node scripts/build ./ --test --client none",
     "dev": "node scripts/build ./ --watch --plugins \"[ 'postcss/generic-classes({keepOriginal: true})' ]\"",
     "build": "node scripts/build ./",
     "build:all": "node scripts/build ./ --client all",

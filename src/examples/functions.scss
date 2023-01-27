@@ -1,14 +1,46 @@
-.desaturate {
-  color: sf(hsl(0, 100%, 50%)); // hsl(0, calc(var(--saturation-factor, 1) * 100%), 50%)
-  color: sf-parse(hsla(0, calc(var(--saturation-factor, 1) * 100%), 50%, 0.5)); // hsl(0, 100%, 50%)
+//? Increases the selector's specificity
+#{boost('.once', 1)} { // .once.once
+  color: cyan;
+}
+#{boost('.twice', 2)} { // .twice.twice.twice
+  color: magenta
 }
 
+//? Makes selectors platform-specific
+#{on('osx', '.container')} { // .platform-osx .container
+  color: yellow;
+}
+#{on('linux', '.container:root')} { // .platform-linux.container:root
+  color: black;
+}
+.wrapper {
+  @at-root #{on('web')} { // .platform-web .wrapper
+    color: red;
+  }
+
+  @at-root #{on('win', $root: true)} { // .platform-win.wrapper
+    color: green;
+  }
+}
+
+//? Creates and parses colors with the --saturation-factor variable
+.desaturate {
+  color: sf(hsl(240, 100%, 50%)); // hsl(240, calc(var(--saturation-factor, 1) * 100%), 50%)
+  color: sf-parse(hsla(240, calc(var(--saturation-factor, 1) * 100%), 50%, 0.5)); // hsla(240, 100%, 50%, 0.5)
+}
+
+//? Matches and replaces text using RegEx
 .regex {
   content: regex-match('555', '/\d/'); // true
   content: "#{regex-replace('colour', '/ou/i', 'o')}"; // color
 }
 
+//? Converts the input into a data URI
 .icon {
-  // Sadly the path here is based off the src/ folder.
-  content: uri('<svg xmlns="http://www.w3.org/2000/svg"><ellipse rx="100" ry="100" color="red" /></svg>', 'svg'); // url(data:image/svg+xml;base64,...)
+  // The path here is based off the assets/ folder.
+  content: uri('example.svg'); // url(data:image/svg+xml;base64,...)
+  content: uri(
+    '<svg xmlns="http://www.w3.org/2000/svg"><ellipse rx="100" ry="100" color="red" /></svg>',
+    'svg'
+  ); // url(data:image/svg+xml;base64,...)
 }

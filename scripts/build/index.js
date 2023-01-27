@@ -157,6 +157,12 @@ const stringToRegex = (regexString) => {
   return new RegExp(expression, flags);
 };
 
+// prettier-ignore
+const selectorRegex = {
+  all: /[#.][-_]?[_a-zA-Z]+(?:\w|\\.)*|(?<=\s+|^)(?:\w+|\*)|\[[^\s"'=<>`]+?(?<![~|^$*])([~|^$*]?=(?:['"].*['"]|[^\s"'=<>`]+))?\]|:[\w-]+(?:\(.*\))?/gm,
+  grouped: /(?:[#.][-_]?[_a-zA-Z]+(?:\w|\\.)*|(?<=\s+|^)(?:\w+|\*)|\[[^\s"'=<>`]+?(?<![~|^$*])([~|^$*]?=(?:['"].*['"]|[^\s"'=<>`]+))?\]|:[\w-]+(?:\(.*\))?)+/gm,
+}
+
 let compileError;
 const compile = (file) => {
   try {
@@ -210,7 +216,8 @@ const compile = (file) => {
         //? Misc
         'uri($input, $type: svg, $url: true)': (args) => {
           args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
-          const path = join(root, 'src', args[0]);
+          // TODO: Get the file directory using errors somehow
+          const path = join(root, 'assets', args[0]);
           const data = fs.existsSync(path) ? fs.readFileSync(path) : args[0];
 
           const typeInput = args[1];
@@ -223,6 +230,40 @@ const compile = (file) => {
             args[2] === 'true' ? `url("${meta.content}")` : `"${meta.content}"`,
             { quotes: false }
           );
+        },
+        'boost($selector: &, $amount: 1)': (args) => {
+          // prettier-ignore
+          args = args.map((a) => a.toString().replace(/^\(|\,\)$/g, '').replace(/(?:^['"]|['"]$)/g, ''));
+          const selector = args[0];
+          const amount = parseInt(args[1]);
+
+          const regex = selectorRegex.all;
+          const lastSelector = selector.match(regex)[0];
+          // TODO: Add warning if the selector is '*'
+          const isTag = /^[^.#:\[]/m.test(lastSelector);
+          // prettier-ignore
+          const result = isTag
+            ? selector + `:is(${Array(amount).fill(lastSelector).join('):is(')})`
+            : selector + lastSelector.repeat(amount);
+
+          return sass.SassString(result, { quotes: false });
+        },
+        'on($platform, $selector: &, $root: false)': (args) => {
+          // TODO: remove $root and suggest users to use :root instead
+          // prettier-ignore
+          args = args.map((a) => a.toString().replace(/^\(|\,\)$/g, '').replace(/(?:^['"]|['"]$)/g, ''));
+          const platform = args[0].replace(/\.?platform-/, '');
+          // TODO: Add warning for invalid platforms
+          const selector = args[1];
+          const regex = selectorRegex.grouped;
+
+          const matchedSelectors = selector.match(regex);
+          const isRoot =
+            args[2] === 'true' ||
+            /:root|^html|\[lang|\.platform/i.test(matchedSelectors[0]);
+
+          const result = `.platform-${platform}${isRoot ? '' : ' '}${selector}`;
+          return sass.SassString(result, { quotes: false });
         },
       },
       importers: [
