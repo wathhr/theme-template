@@ -265,19 +265,17 @@ const compile = (file) => {
       importers: [
         {
           findFileUrl(url) {
-            // TODO: Rewrite because yeah
             const aliases = config.aliases;
-            let aliasedDir = '';
+            const urlBaseRegex = /([^\\\/]+)[\\\/]?/;
+            const urlBase = url.match(urlBaseRegex);
 
-            // prettier-ignore
-            if (!Object.keys(aliases).find((dir) => {
-              const result = aliases[dir].includes(
-                url.replace(/\/(?:[^/]+)?(?:\/$|$)/, '')
-              );
-              if (result) aliasedDir = dir;
-              return result
-            })) return null;
-            const structure = url.replace(new RegExp(`^${url}[\\\/]?`), '');
+            const aliasedDir = Object.keys(aliases).find((dir) => {
+              const result = aliases[dir].includes(urlBase[1]);
+              return result ? dir : false;
+            });
+
+            if (!aliasedDir) return null;
+            const structure = url.replace(urlBaseRegex, '');
             return new URL(pathToFileURL(join(root, aliasedDir, structure)));
           },
         },
