@@ -2,7 +2,6 @@
 @use 'sass:map';
 @use './tooltip-colors.scss' as *;
 
-// TODO: automatically find the element and and the attach element using parent nth
 @mixin convert-tooltip(
   $element,
   $direction: top,
@@ -73,13 +72,6 @@
       border-#{$direction}-color: $bg-color;
       @content(pointer);
     }
-    // &::after {
-    //   content: '';
-    //   position: absolute;
-    //   #{$opposite}: -10px;
-    //   width: calc(100% - 12px * 2); // the 12px is the padding
-    //   height: calc(10px + $offset);
-    // }
   }
 
   @keyframes tooltipPop-#{$direction} {

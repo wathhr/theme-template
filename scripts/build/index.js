@@ -5,7 +5,7 @@ const { cwd } = require('process');
 const { join, relative } = require('path');
 const { pathToFileURL } = require('url');
 const chokidar = require('chokidar');
-const parser = new (require('datauri/parser'))();
+const dataUriParser = new (require('datauri/parser'))();
 const postcss = require('postcss');
 const sass = require('sass');
 const tinycolor = require('tinycolor2');
@@ -194,14 +194,14 @@ const compile = (file) => {
 
         //? Regex functions
         'regex-match($string, $regex)': (args) => {
-          args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
+          args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
           const string = args[0];
           const regex = stringToRegex(args[1]);
           const match = string.match(regex);
           return match ? sass.sassTrue : sass.sassFalse;
         },
         'regex-replace($string, $regex, $replace)': (args) => {
-          args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
+          args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
           const string = args[0];
           const regex = stringToRegex(args[1]);
           const replace = args[2];
@@ -211,26 +211,26 @@ const compile = (file) => {
 
         //? Misc
         'uri($input, $type: svg, $url: true)': (args) => {
-          args = args.map((a) => a.toString().replace(/(?:^['"]|['"]$)/g, ''));
+          args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
           // TODO: Get the file directory using errors somehow
           const path = join(root, config.assets, args[0]);
           const data = fs.existsSync(path) ? fs.readFileSync(path) : args[0];
 
           const typeInput = args[1];
           const isFile = typeof data === 'object';
-          // TODO: make this not override the typeInput if its user set in a not dumb way
+          // TODO: Make this not override the typeInput if its user set in a not dumb way
           const type = isFile ? path.match(/(?<=\.)\w+$/)[0] : typeInput;
 
-          const meta = parser.format(type, data);
+          const meta = dataUriParser.format(type, data);
           return sass.SassString(
             args[2] === 'true' ? `url("${meta.content}")` : `"${meta.content}"`,
             { quotes: false }
           );
         },
         'boost($selector: &, $amount: 1)': (args) => {
-          // prettier-ignore
-          args = args.map((a) => a.toString().replace(/^\(|\,\)$/g, '').replace(/(?:^['"]|['"]$)/g, ''));
-          const selector = args[0];
+          // TODO: Make this not return the entire selector
+          args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
+          const selector = args[0].replace(/^\(|\,\)$/g, '');
           const amount = parseInt(args[1]);
 
           const regex = selectorRegex.all;
@@ -245,12 +245,11 @@ const compile = (file) => {
           return sass.SassString(result, { quotes: false });
         },
         'on($platform, $selector: &, $root: false)': (args) => {
-          // TODO: remove $root and suggest users to use :root instead
-          // prettier-ignore
-          args = args.map((a) => a.toString().replace(/^\(|\,\)$/g, '').replace(/(?:^['"]|['"]$)/g, ''));
+          // TODO: Remove $root and suggest users to use :root instead
+          args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
           const platform = args[0].replace(/\.?platform-/, '');
           // TODO: Add warning for invalid platforms
-          const selector = args[1];
+          const selector = args[1].replace(/^\(|\,\)$/g, '');
           const regex = selectorRegex.grouped;
 
           const matchedSelectors = selector.match(regex);
