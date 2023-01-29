@@ -8,7 +8,6 @@
       "valid": [
         "^all$",
         "^none$",
-        "^bd$",
         "^better[dD]iscord$",
         "^stylus$"
       ],
@@ -17,7 +16,7 @@
     {
       "name": "filePath",
       "short": "p",
-      "description": "Specifies the path of a Sass file.",
+      "description": "Specifies the path of the Sass file to compile.",
       "switch": false,
       "valid": [".*(\\.s[ac]ss|\/)"]
     },
@@ -30,10 +29,10 @@
     {
       "name": "output",
       "short": "o",
-      "description": "Specifies the folder path of the output file.",
+      "description": "Specifies the path and name of the output file. Can use keys from the meta file when surrounded by curly braces.",
       "switch": false,
-      "valid": ["^[^/\\\\].+$"],
-      "default": "./dist"
+      "valid": [".*(?<!\\.css|[\\\/])$"],
+      "default": "./dist/{name}"
     },
     {
       "name": "plugins",

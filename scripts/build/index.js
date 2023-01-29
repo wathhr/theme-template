@@ -14,7 +14,7 @@ const args = process.argv.slice(2);
 const { flags } = require('./flags.json');
 const root = join(__dirname, '../..');
 const config = require(join(root, 'theme.config.json'));
-const manifest = require(join(root, 'manifest.json'));
+const meta = require(join(root, 'theme.meta.json'));
 
 const help = (exitCode) => {
   console.log('Builds your Discord theme.\n');
@@ -96,6 +96,16 @@ Object.keys(actions).forEach((action) => {
   };
 
   switch (action.name) {
+    case 'client':
+      if (action.arg === 'all') {
+        const allClients = clientFiles.map((f) => f.replace(/\..*$/, ''));
+
+        setFlags[action.name] = ['none', ...allClients];
+        break;
+      }
+      setFlags[action.name] = [action.arg];
+      break;
+
     case 'filePath':
       // In case provided path is folder, find index file
       const indexFiles = ['./index.scss', './_index.scss'];
@@ -111,14 +121,11 @@ Object.keys(actions).forEach((action) => {
       if (!setFlags[action.name]) setFlags[action.name] = action.arg;
       break;
 
-    case 'client':
-      if (action.arg === 'all') {
-        const allClients = clientFiles.map((f) => f.replace(/\..*$/, ''));
-
-        setFlags[action.name] = ['none', ...allClients];
-        break;
-      }
-      setFlags[action.name] = [action.arg];
+    case 'output':
+      const interpolated = action.arg.replace(/\{(.+?)\}/g, (_, group) => {
+        return meta[group] || `{${group}}`;
+      });
+      setFlags[action.name] = interpolated;
       break;
 
     case 'plugins':
@@ -214,16 +221,18 @@ const compile = (file) => {
           args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
           // TODO: Get the file directory using errors somehow
           const path = join(root, config.assets, args[0]);
-          const data = fs.existsSync(path) ? fs.readFileSync(path) : args[0];
+          const fileData = fs.existsSync(path)
+            ? fs.readFileSync(path)
+            : args[0];
 
           const typeInput = args[1];
-          const isFile = typeof data === 'object';
+          const isFile = typeof fileData === 'object';
           // TODO: Make this not override the typeInput if its user set in a not dumb way
           const type = isFile ? path.match(/(?<=\.)\w+$/)[0] : typeInput;
 
-          const meta = dataUriParser.format(type, data);
+          const data = dataUriParser.format(type, fileData);
           return sass.SassString(
-            args[2] === 'true' ? `url("${meta.content}")` : `"${meta.content}"`,
+            args[2] === 'true' ? `url("${data.content}")` : `"${data.content}"`,
             { quotes: false }
           );
         },
@@ -281,8 +290,9 @@ const compile = (file) => {
       ],
     });
 
-    if (!fs.existsSync(setFlags.output))
-      fs.mkdirSync(setFlags.output, { recursive: true });
+    const outputFolder = join(setFlags.output, '..');
+    if (!fs.existsSync(outputFolder))
+      fs.mkdirSync(outputFolder, { recursive: true });
     setFlags.client.forEach(async (client) => {
       const regex = {
         atCss: /[^\S\r\n]*@css;?/gi,
@@ -300,8 +310,7 @@ const compile = (file) => {
       });
 
       if (!setFlags.test) {
-        const fileName =
-          join(setFlags.output, manifest.name) + `${clientSuffix}.css`;
+        const fileLocation = setFlags.output + `${clientSuffix}.css`;
 
         const fileContent = Boolean(clientFile)
           ? fs
@@ -310,7 +319,7 @@ const compile = (file) => {
               .replace(regex.atCss, postcssRes.css) // Add the CSS wherever @css is used
           : postcssRes.css;
 
-        fs.writeFileSync(fileName, fileContent);
+        fs.writeFileSync(fileLocation, fileContent);
       }
     });
     compileError = false;
