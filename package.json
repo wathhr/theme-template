@@ -15,7 +15,7 @@
     "test:splash": "node scripts/build ./src/splash --test --client none",
     "dev:splash": "node scripts/build ./src/splash --watch --plugins \"[ 'postcss/generic-classes({keepOriginal: true})' ]\" --output ./dist/splash --client none",
     "build:splash": "node scripts/build ./src/splash --client none --output ./dist/splash",
-    "bump": "node scripts/bump patch",
+    "bump": "node scripts/bump",
     "bump:major": "node scripts/bump major",
     "bump:minor": "node scripts/bump minor",
     "bump:patch": "node scripts/bump patch",

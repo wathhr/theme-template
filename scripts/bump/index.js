@@ -5,77 +5,64 @@
 const fs = require('fs');
 const { join } = require('path');
 
-const args = process.argv.slice(2);
 const { metaFiles } = require('../files.js');
 const root = join(__dirname, '../..');
-const bumpType = args[0].charAt(0).toUpperCase() + args[0].slice(1) || null;
-const bumpAmount = parseInt(args[1]) || 1;
+const meta = require(join(root, 'theme.meta.json'));
+const args = process.argv.slice(2);
+const bumpType = (args[0] || 'patch').toLowerCase();
+const bumpAmount = isNaN(parseInt(args[1])) ? 1 : parseInt(args[1]);
 
-const validTypes = ['Major', 'Minor', 'Patch', 'Alpha'];
-if (!validTypes.includes(bumpType)) {
-  // I wanted to make something with readline but wasn't able to figure it out
+const validTypes = ['major', 'minor', 'patch', 'alpha'];
+if (!validTypes.includes(bumpType.toLowerCase())) {
   console.log('Invalid argument. Must provide one of the following:');
   validTypes.forEach((type, i) => {
-    console.log(`${i + 1}. ${type}`);
+    console.log(`${i + 1}. ${type.charAt(0).toUpperCase() + type.slice(1)}`);
   });
   console.log(`\nYou can find more info over at https://semver.org.`);
   process.exit(1);
 }
-
 if (bumpAmount <= 0) {
-  console.log('The Bump amount must be greater than 0.');
+  console.log('Bump amount must be greater than 0.');
   process.exit(1);
 }
 
-let version;
-let newVersion;
-metaFiles.forEach((file) => {
-  const actualFile = join(root, file);
-  const fileData = fs.readFileSync(actualFile).toString();
-  var isJson;
+const alphaRegex = /(?<=\.\d+-.*?[^\d])\d{3}$/im;
+const version = {
+  major: parseInt(meta.version.split('.')[0]),
+  minor: parseInt(meta.version.split('.')[1]),
+  patch: parseInt(meta.version.split('.')[2]),
+  alpha: meta.version.match(alphaRegex)
+    ? parseInt(meta.version.match(alphaRegex)[0])
+    : 0,
+};
+const versionString = meta.version;
+
+if (version[bumpType] <= 0 && bumpAmount < 0) {
+  console.log("The version can't be negative.");
+  process.exit(1);
+}
+
+const newVersion = { ...version };
+newVersion[bumpType] += bumpAmount;
+const newVersionString =
+  `${newVersion.major}.${newVersion.minor}.${newVersion.patch}` +
+  (newVersion.alpha && bumpType === 'alpha'
+    ? `-Alpha.${newVersion.alpha.toString().padStart(3, '0')}`
+    : '');
+
+for (let i = 0; i < metaFiles.length; i++) {
+  const file = metaFiles[i];
+  const fileData = fs.readFileSync(file);
+  const newFileData = fileData
+    .toString()
+    .replaceAll(versionString, newVersionString);
+
   try {
-    isJson = Boolean(JSON.parse(fileData));
+    fs.writeFileSync(file, newFileData);
+    console.log(`Bumped ${file}!`);
   } catch (e) {
-    isJson = false;
+    console.error(`Failed to bump ${file}`, e);
   }
+}
 
-  let newFileData;
-  if (isJson) {
-    // TODO: Fix changing formatting
-    const json = JSON.parse(fileData);
-    if (isJson && !version) {
-      const alphaRegex = /(?<=\.\d+-.*?[^\d])\d{3}$/im;
-      version = {
-        Major: parseInt(json.version.split('.')[0]),
-        Minor: parseInt(json.version.split('.')[1]),
-        Patch: parseInt(json.version.split('.')[2]),
-        Alpha: json.version.match(alphaRegex)
-          ? parseInt(json.version.match(alphaRegex)[0])
-          : 0,
-      };
-
-      version[bumpType] = version[bumpType] + bumpAmount;
-      newVersion =
-        `${version.Major}.${version.Minor}.${version.Patch}` +
-        (version.Alpha && bumpType == 'Alpha'
-          ? `-Alpha.${version.Alpha.toString().padStart(3, '0')}`
-          : '');
-    }
-
-    // prettier-ignore
-    newFileData = JSON.stringify(json, (key, value) => {
-      if (key === 'version') return '__versionNumber__';
-      return value;
-    }, 2);
-  } else {
-    const regex = /(?<=version\s).*/gim;
-    newFileData = fileData.replace(regex, '__versionNumber__');
-  }
-
-  newFileData = newFileData.replace('__versionNumber__', newVersion);
-
-  fs.writeFile(actualFile, newFileData, (err) => {
-    if (err) throw err;
-  });
-});
-console.log(`Bumped to version ${newVersion}!`);
+console.log(`Bumped to version ${newVersionString}!`);
