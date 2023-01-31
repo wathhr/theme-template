@@ -50,18 +50,18 @@ const newVersionString =
     ? `-Alpha.${newVersion.alpha.toString().padStart(3, '0')}`
     : '');
 
-for (let i = 0; i < metaFiles.length; i++) {
-  const file = metaFiles[i];
-  const fileData = fs.readFileSync(file);
+for (const file of metaFiles) {
+  const actualFile = join(root, file);
+  const fileData = fs.readFileSync(actualFile);
   const newFileData = fileData
     .toString()
     .replaceAll(versionString, newVersionString);
 
   try {
     fs.writeFileSync(file, newFileData);
-    console.log(`Bumped ${file}!`);
+    console.log(`Bumped ${actualFile}!`);
   } catch (e) {
-    console.error(`Failed to bump ${file}`, e);
+    console.error(`Failed to bump ${actualFile}`, e);
   }
 }
 
