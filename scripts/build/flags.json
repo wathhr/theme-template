@@ -5,12 +5,6 @@
       "short": "c",
       "description": "Specifies a client to build for.",
       "switch": false,
-      "valid": [
-        "^all$",
-        "^none$",
-        "^better[dD]iscord$",
-        "^stylus$"
-      ],
       "default": "all"
     },
     {
