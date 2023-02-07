@@ -1,0 +1,4 @@
+{
+  "id": "__authorName__.__themeName__",
+  "main": "dist/__themeName__.css"
+}

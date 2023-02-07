@@ -59,8 +59,8 @@ args.forEach((arg, i) => {
   const actualArg = arg.split('=')[0];
   const isLong = actualArg.startsWith('--');
   const flag = isLong
-    ? flags.find((v) => v.name == actualArg.slice(2))
-    : flags.find((v) => v.short == actualArg.slice(1));
+    ? flags.find((v) => v.name === actualArg.slice(2))
+    : flags.find((v) => v.short === actualArg.slice(1));
 
   if (!flag) throw `Argument "${actualArg}" doesn't exist.`;
 
@@ -125,7 +125,8 @@ Object.keys(actions).forEach((action) => {
       const interpolated = action.arg.replace(/\{(.+?)\}/g, (_, group) => {
         return meta[group] || `{${group}}`;
       });
-      setFlags[action.name] = interpolated;
+
+      setFlags[action.name] = interpolated || action.arg;
       break;
 
     case 'plugins':
@@ -139,11 +140,18 @@ Object.keys(actions).forEach((action) => {
         };
 
         const possibleDir = join(root, plugin.dir);
+        // prettier-ignore
         if (fs.existsSync(possibleDir))
+          // If a directory exists in the root, use it
           plugins.push(require(possibleDir)(plugin.opts));
+
         else if (fs.existsSync(possibleDir + '.js'))
+          // If a js file exists in the root, use it
           plugins.push(require(possibleDir + '.js')(plugin.opts));
-        else plugins.push(require(plugin.dir)(plugin.opts));
+
+        else
+          // If nothing is found, use what is provided
+          plugins.push(require(plugin.dir)(plugin.opts));
       });
       break;
 
@@ -244,7 +252,11 @@ const compile = (file) => {
 
           const regex = selectorRegex.all;
           const lastSelector = selector.match(regex)[0];
-          // TODO: Add warning if the selector is '*'
+          if (lastSelector === '*') {
+            console.warn('Unable to boost "*".');
+            return sass.SassString(lastSelector, { quotes: false });
+          }
+
           const isTag = /^[^.#:\[]/m.test(lastSelector);
           // prettier-ignore
           const result = isTag
@@ -254,17 +266,22 @@ const compile = (file) => {
           return sass.SassString(result, { quotes: false });
         },
         'on($platform, $selector: &, $root: false)': (args) => {
-          // TODO: Remove $root and suggest users to use :root instead
           args = args.map((a) => a.toString().replace(/^['"]|['"]$/g, ''));
           const platform = args[0].replace(/\.?platform-/, '');
-          // TODO: Add warning for invalid platforms
+          const validPlatforms = ['linux', 'osx', 'web', 'win'];
+          if (!validPlatforms.includes(platform))
+            console.warn(
+              `"${platform}" is an invalid platform. Valid platforms:`,
+              validPlatforms.join(', ')
+            );
+
           const selector = args[1].replace(/^\(|\,\)$/g, '');
           const regex = selectorRegex.grouped;
 
           const matchedSelectors = selector.match(regex);
           const isRoot =
             args[2] === 'true' ||
-            /:root|^html|\[lang|\.platform/i.test(matchedSelectors[0]);
+            /:root|^html|\[lang|\.platform-/i.test(matchedSelectors[0]);
 
           const result = `.platform-${platform}${isRoot ? '' : ' '}${selector}`;
           return sass.SassString(result, { quotes: false });
