@@ -9,17 +9,17 @@ module.exports = (opts = { wordIgnores: ['platform'] }) => {
 
       const regex = new RegExp(
         // the only capture group should be the generic class
-        `\\.(\\w+(?<!${regexWordIgnore}))[-_](?:[\\w-]{4,}|(?=[\\s_-]|$))`
+        `\\.(\\w+(?<!${regexWordIgnore})[-_])(?:[\\w-]{4,}|(?=[\\s_-]|$))`
       );
 
-      for (let i = 0; i < Root.nodes.length; i++) {
+      for (const i in Root.nodes) {
         const node = Root.nodes[i];
         const previous = Root.nodes[i - 1];
         const ignore = previous?.text === 'non-generic';
         if (node.type === 'rule' && !ignore) {
           const newSelector = node.selector
             .split(/\s*(?<!\\)[,>]\s*/gm)
-            .map((s) => s.replace(regex, '[class|="$1"]'))
+            .map((s) => s.replace(regex, '[class*="$1"]'))
             .join(', ');
 
           node.selector = newSelector;
